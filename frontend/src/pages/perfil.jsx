@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Perfil() {
-  const [usuario, setUsuario] = useState(null);
+  // Leer localStorage AL INICIALIZAR el estado (una sola vez)
+  const [usuario] = useState(() => {
+    const data = localStorage.getItem("usuario");
+    return data ? JSON.parse(data) : null;
+  });
   const navigate = useNavigate();
 
+  //  El efecto solo redirige si no hay usuario
   useEffect(() => {
-    const data = localStorage.getItem("usuario");
-    if (!data) {
+    if (!usuario) {
       navigate("/login");
-    } else {
-      setUsuario(JSON.parse(data));
     }
-  }, [navigate]);
+  }, [usuario, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

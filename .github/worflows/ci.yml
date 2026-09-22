@@ -1,0 +1,48 @@
+name: CI Pipeline Escuela Cafe
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias Backend
+        working-directory: ./backend/backend
+        run: npm ci
+
+      - name: Correr Linter Backend
+        working-directory: ./backend/backend
+        run: npm run lint
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias Frontend
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Correr Linter Frontend
+        working-directory: ./frontend
+        run: npm run lint

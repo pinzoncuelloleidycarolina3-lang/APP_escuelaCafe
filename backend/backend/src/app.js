@@ -4,7 +4,7 @@ const morgan = require("morgan");
 
 const authRoutes = require("./routes/authRoutes");
 const usuarioRoutes = require("./routes/usuarioRoutes");
-const healthRoutes = require('./routes/health.routes');
+const healthRoutes = require("./routes/health.routes");
 
 const app = express();
 
@@ -24,6 +24,5 @@ app.get("/", (req, res) => {
     proyecto: "Escuela Café",
   });
 });
-
 
 module.exports = app;
