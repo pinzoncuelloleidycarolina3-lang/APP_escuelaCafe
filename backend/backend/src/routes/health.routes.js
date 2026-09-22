@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 
+// HU-HEALTH: Endpoint de monitoreo con ping a MongoDB y uptime
 router.get("/api/health", async (req, res) => {
   const estadoBD = mongoose.connection.readyState;
   const estados = {
