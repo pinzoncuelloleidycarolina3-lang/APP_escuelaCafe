@@ -43,6 +43,7 @@ const registro = async (req, res) => {
   }
 };
 
+// HU-02: Login de usuario con JWT y registro de trazabilidad en system_logs
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
