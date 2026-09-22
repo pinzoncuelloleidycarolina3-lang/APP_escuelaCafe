@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 const { registrarLog } = require("../utils/logger");
 
+// HU-01: Registro de usuario con validación de datos y contraseña hasheada
 const registro = async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
