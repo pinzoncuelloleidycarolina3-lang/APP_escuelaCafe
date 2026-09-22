@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
+const { registrarLog } = require("../utils/logger");
 
 const registro = async (req, res) => {
   try {
@@ -52,14 +53,31 @@ const login = async (req, res) => {
     }
 
     const usuario = await Usuario.findOne({ email });
+
+    //  Caso 1: el usuario no existe
     if (!usuario) {
+      await registrarLog(
+        "WARNING",
+        req.ip,
+        `Intento de login fallido: correo no registrado (${email})`
+      );
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
     const passwordValido = await bcrypt.compare(password, usuario.password);
+
+    // Caso 2: contraseña incorrecta
     if (!passwordValido) {
+      await registrarLog(
+        "WARNING",
+        req.ip,
+        `Intento de login fallido: contraseña incorrecta para ${email}`
+      );
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
+
+    // Caso 3: login exitoso
+    await registrarLog("INFO", req.ip, `Login exitoso para ${email}`);
 
     const token = jwt.sign(
       {
@@ -83,6 +101,8 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
+    //  Caso 4: error inesperado del servidor
+    await registrarLog("ERROR", req.ip, `Error en login: ${error.message}`);
     res
       .status(500)
       .json({ message: "Error en el servidor", error: error.message });
