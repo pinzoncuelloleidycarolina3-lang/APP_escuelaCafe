@@ -17,7 +17,7 @@ const carritoSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Usuario",
       required: true,
-      unique: true, // Un carrito activo por usuario
+      unique: true,
     },
     items: [itemCarritoSchema],
     total: { type: Number, default: 0 },
@@ -33,13 +33,12 @@ const carritoSchema = new mongoose.Schema(
   }
 );
 
-// Calcular total automáticamente antes de guardar
-carritoSchema.pre("save", function (next) {
+// ✅ Hook corregido para Mongoose 7+
+carritoSchema.pre("save", function () {
   this.total = this.items.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
     0
   );
-  next();
 });
 
 module.exports = mongoose.model("Carrito", carritoSchema);

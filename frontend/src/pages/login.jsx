@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -11,11 +11,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
-      const res = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("usuario", JSON.stringify(res.data.usuario));
+      await login(email, password);
       navigate("/perfil");
     } catch (err) {
       setError(err.response?.data?.message || "Error al iniciar sesión");
@@ -23,38 +20,29 @@ function Login() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Iniciar sesión - Escuela Café</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Contraseña</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" style={{ width: "100%", padding: "10px" }}>
-          Entrar
-        </button>
-      </form>
-      <p>
-        ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
-      </p>
-    </div>
+    <form onSubmit={handleSubmit} style={{ maxWidth: 400, margin: "50px auto" }}>
+      <h2>Iniciar sesión</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        style={{ display: "block", width: "100%", marginBottom: 10, padding: 8 }}
+      />
+      <input
+        type="password"
+        placeholder="Contraseña"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        style={{ display: "block", width: "100%", marginBottom: 10, padding: 8 }}
+      />
+      <button type="submit" style={{ padding: 10 }}>
+        Entrar
+      </button>
+    </form>
   );
 }
 
