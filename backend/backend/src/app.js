@@ -4,7 +4,9 @@ const morgan = require("morgan");
 
 const authRoutes = require("./routes/authRoutes");
 const usuarioRoutes = require("./routes/usuarioRoutes");
+const cursoRoutes = require("./routes/cursosRoutes");      // 👈 NUEVO
 const healthRoutes = require("./routes/health.routes");
+const carritoRoutes = require("./routes/carritoRoutes"); 
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 // Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/cursos", cursoRoutes);   
+app.use("/api/carrito", carritoRoutes);                      // 👈 NUEVO
 app.use(healthRoutes);
 
 app.get("/", (req, res) => {

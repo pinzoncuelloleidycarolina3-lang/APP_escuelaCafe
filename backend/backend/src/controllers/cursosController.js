@@ -1,36 +1,34 @@
-// Cursos en memoria (temporal hasta conectar MySQL)
-// TODO: reemplazar cada función por consultas a la BD
-const cursos = [];
+const Curso = require("../models/Curso");
 
 // GET /api/cursos — listar cursos publicados (HU-06)
-const listarCursos = (req, res) => {
+const listarCursos = async (req, res) => {
   try {
     const { nivel, buscar, page = 1 } = req.query;
     const porPagina = 10;
 
-    let resultado = cursos.filter((c) => c.estado === "Publicado");
+    // Construir filtro
+    const filtro = { estado: "Publicado" };
 
-    // Filtro por nivel
     if (nivel) {
-      resultado = resultado.filter((c) => c.nivel === nivel);
+      filtro.nivel = nivel;
     }
 
-    // Búsqueda por nombre
     if (buscar) {
-      resultado = resultado.filter((c) =>
-        c.titulo.toLowerCase().includes(buscar.toLowerCase())
-      );
+      filtro.titulo = { $regex: buscar, $options: "i" };
     }
 
-    // Paginación
-    const total = resultado.length;
+    const total = await Curso.countDocuments(filtro);
     const inicio = (page - 1) * porPagina;
-    const paginado = resultado.slice(inicio, inicio + porPagina);
+
+    const cursos = await Curso.find(filtro)
+      .skip(inicio)
+      .limit(porPagina)
+      .sort({ created_at: -1 });
 
     res.json({
       total,
       pagina: parseInt(page),
-      cursos: paginado,
+      cursos,
     });
   } catch (error) {
     res
@@ -40,9 +38,9 @@ const listarCursos = (req, res) => {
 };
 
 // GET /api/cursos/:id — detalle de un curso (HU-06)
-const obtenerCurso = (req, res) => {
+const obtenerCurso = async (req, res) => {
   try {
-    const curso = cursos.find((c) => c.id === parseInt(req.params.id));
+    const curso = await Curso.findById(req.params.id);
     if (!curso) {
       return res.status(404).json({ message: "Curso no encontrado" });
     }
@@ -55,7 +53,7 @@ const obtenerCurso = (req, res) => {
 };
 
 // POST /api/cursos — crear curso (HU-05)
-const crearCurso = (req, res) => {
+const crearCurso = async (req, res) => {
   try {
     const { titulo, descripcion, nivel, precio, duracion_horas, cupos_max } =
       req.body;
@@ -80,9 +78,7 @@ const crearCurso = (req, res) => {
         .json({ message: "El precio no puede ser negativo" });
     }
 
-    // TODO: reemplazar por INSERT en tabla cursos
-    const nuevoCurso = {
-      id: cursos.length + 1,
+    const nuevoCurso = new Curso({
       titulo,
       descripcion,
       nivel,
@@ -94,10 +90,9 @@ const crearCurso = (req, res) => {
       instructor_id: req.usuario.id,
       instructor: req.usuario.nombre,
       modulos: [],
-      created_at: new Date().toISOString(),
-    };
+    });
 
-    cursos.push(nuevoCurso);
+    await nuevoCurso.save();
 
     res
       .status(201)
@@ -110,15 +105,18 @@ const crearCurso = (req, res) => {
 };
 
 // PUT /api/cursos/:id — editar curso (HU-05)
-const editarCurso = (req, res) => {
+const editarCurso = async (req, res) => {
   try {
-    const curso = cursos.find((c) => c.id === parseInt(req.params.id));
+    const curso = await Curso.findById(req.params.id);
     if (!curso) {
       return res.status(404).json({ message: "Curso no encontrado" });
     }
 
     // Solo el instructor dueño o un admin puede editar
-    if (curso.instructor_id !== req.usuario.id && req.usuario.rol !== "Admin") {
+    if (
+      curso.instructor_id.toString() !== req.usuario.id &&
+      req.usuario.rol !== "Admin"
+    ) {
       return res
         .status(403)
         .json({ message: "No tienes permiso para editar este curso" });
@@ -142,6 +140,8 @@ const editarCurso = (req, res) => {
     if (cupos_max) curso.cupos_max = parseInt(cupos_max);
     if (estado) curso.estado = estado;
 
+    await curso.save();
+
     res.json({ message: "Curso actualizado correctamente", curso });
   } catch (error) {
     res
@@ -151,15 +151,15 @@ const editarCurso = (req, res) => {
 };
 
 // DELETE /api/cursos/:id — archivar curso (HU-05)
-const archivarCurso = (req, res) => {
+const archivarCurso = async (req, res) => {
   try {
-    const curso = cursos.find((c) => c.id === parseInt(req.params.id));
+    const curso = await Curso.findById(req.params.id);
     if (!curso) {
       return res.status(404).json({ message: "Curso no encontrado" });
     }
 
-    // TODO: reemplazar por UPDATE estado='Archivado' en BD
     curso.estado = "Archivado";
+    await curso.save();
 
     res.json({ message: "Curso archivado correctamente" });
   } catch (error) {
@@ -170,14 +170,17 @@ const archivarCurso = (req, res) => {
 };
 
 // POST /api/cursos/:id/modulos — agregar módulo (HU-07)
-const agregarModulo = (req, res) => {
+const agregarModulo = async (req, res) => {
   try {
-    const curso = cursos.find((c) => c.id === parseInt(req.params.id));
+    const curso = await Curso.findById(req.params.id);
     if (!curso) {
       return res.status(404).json({ message: "Curso no encontrado" });
     }
 
-    if (curso.instructor_id !== req.usuario.id && req.usuario.rol !== "Admin") {
+    if (
+      curso.instructor_id.toString() !== req.usuario.id &&
+      req.usuario.rol !== "Admin"
+    ) {
       return res
         .status(403)
         .json({ message: "No tienes permiso para editar este curso" });
@@ -190,19 +193,19 @@ const agregarModulo = (req, res) => {
         .json({ message: "El título del módulo es obligatorio" });
     }
 
-    // TODO: reemplazar por INSERT en tabla modulos
     const nuevoModulo = {
-      id: curso.modulos.length + 1,
       titulo,
       orden: curso.modulos.length + 1,
       lecciones: [],
     };
 
     curso.modulos.push(nuevoModulo);
+    await curso.save();
 
-    res
-      .status(201)
-      .json({ message: "Módulo agregado correctamente", modulo: nuevoModulo });
+    res.status(201).json({
+      message: "Módulo agregado correctamente",
+      modulo: curso.modulos[curso.modulos.length - 1],
+    });
   } catch (error) {
     res
       .status(500)
@@ -211,16 +214,14 @@ const agregarModulo = (req, res) => {
 };
 
 // POST /api/cursos/:id/modulos/:moduloId/lecciones — agregar lección (HU-07)
-const agregarLeccion = (req, res) => {
+const agregarLeccion = async (req, res) => {
   try {
-    const curso = cursos.find((c) => c.id === parseInt(req.params.id));
+    const curso = await Curso.findById(req.params.id);
     if (!curso) {
       return res.status(404).json({ message: "Curso no encontrado" });
     }
 
-    const modulo = curso.modulos.find(
-      (m) => m.id === parseInt(req.params.moduloId)
-    );
+    const modulo = curso.modulos.id(req.params.moduloId);
     if (!modulo) {
       return res.status(404).json({ message: "Módulo no encontrado" });
     }
@@ -240,9 +241,7 @@ const agregarLeccion = (req, res) => {
         .json({ message: "Tipo inválido. Use: Texto, Video o PDF" });
     }
 
-    // TODO: reemplazar por INSERT en tabla lecciones
     const nuevaLeccion = {
-      id: modulo.lecciones.length + 1,
       titulo,
       tipo,
       contenido_url: contenido_url || null,
@@ -250,10 +249,11 @@ const agregarLeccion = (req, res) => {
     };
 
     modulo.lecciones.push(nuevaLeccion);
+    await curso.save();
 
     res.status(201).json({
       message: "Lección agregada correctamente",
-      leccion: nuevaLeccion,
+      leccion: modulo.lecciones[modulo.lecciones.length - 1],
     });
   } catch (error) {
     res
@@ -263,7 +263,6 @@ const agregarLeccion = (req, res) => {
 };
 
 module.exports = {
-  cursos,
   listarCursos,
   obtenerCurso,
   crearCurso,

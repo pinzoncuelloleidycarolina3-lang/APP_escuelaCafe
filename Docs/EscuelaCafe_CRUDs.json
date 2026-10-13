@@ -1,0 +1,127 @@
+{
+  "info": {
+    "name": "Escuela Café - CRUDs API",
+    "description": "Colección de peticiones CRUD para la API de Escuela Café",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST Registro de Usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Carolina Pinzón\",\n  \"email\": \"carolina@test.com\",\n  \"password\": \"12345678\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/registro",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "auth", "registro"]
+        }
+      }
+    },
+    {
+      "name": "POST Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"carolina@test.com\",\n  \"password\": \"12345678\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "POST Crear Curso",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer TOKEN_JWT_AQUI" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titulo\": \"Emprendimiento Digital\",\n  \"descripcion\": \"Curso introductorio para crear negocios online\",\n  \"nivel\": \"Basico\",\n  \"precio\": 50000,\n  \"duracion_horas\": 20,\n  \"cupos_max\": 30\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cursos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "cursos"]
+        }
+      }
+    },
+    {
+      "name": "GET Listar Cursos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/cursos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "cursos"]
+        }
+      }
+    },
+    {
+      "name": "PUT Editar Curso",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer TOKEN_JWT_AQUI" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titulo\": \"Emprendimiento Digital - Actualizado\",\n  \"precio\": 75000,\n  \"estado\": \"Publicado\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cursos/:id",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "cursos", ":id"],
+          "variable": [
+            { "key": "id", "value": "6ab59327be1ca882cbbddd22" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "DELETE Archivar Curso",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer TOKEN_JWT_AQUI" }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/cursos/:id",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "cursos", ":id"],
+          "variable": [
+            { "key": "id", "value": "6ab59327be1ca882cbbddd22" }
+          ]
+        }
+      }
+    }
+  ]
+}
