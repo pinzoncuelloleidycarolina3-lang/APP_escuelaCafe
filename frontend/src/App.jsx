@@ -3,8 +3,10 @@ import Login from "./pages/login";
 import Registro from "./pages/registro";
 import Perfil from "./pages/perfil";
 import Carrito from "./pages/Carrito";
-import CrearCursos from "./pages/crearCursos";
-import MisCursos from "./pages/misCursos";
+import CrearCursos from "./pages/CrearCursos";
+import MisCursos from "./pages/MisCursos";
+import PanelInstructor from "./pages/PanelInstructor"; // ← nuevo
+import EditarPerfil from "./pages/EditarPerfil";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
       <Route path="/carrito" element={<Carrito />} />
       <Route path="/crear-curso" element={<CrearCursos />} />
       <Route path="/mis-cursos" element={<MisCursos />} />
+      <Route path="/panel-instructor" element={<PanelInstructor />} /> {/* ← nuevo */}
+      <Route path="/editar-perfil" element={<EditarPerfil />} />
     </Routes>
   );
 }

@@ -346,19 +346,96 @@ const estudiantesDelCurso = async (req, res) => {
         total_inscritos: inscripciones.length,
       },
       estudiantes: inscripciones.map((ins) => ({
-        _id: ins._id,
-        nombre: ins.usuario_id?.nombre || "Usuario eliminado",
-        email: ins.usuario_id?.email || "-",
-        fecha_inscripcion: ins.fecha_inscripcion,
-        precio_pagado: ins.precio_pagado,
-        progreso: ins.progreso,
-        estado: ins.estado,
-      })),
+  _id: ins._id,
+  nombre: ins.usuario_id?.nombre || "Usuario eliminado",
+  email: ins.usuario_id?.email || "-",
+  fecha_inscripcion: ins.fecha_inscripcion,
+  precio_pagado: ins.precio_pagado,
+  progreso: ins.progreso,
+  estado: ins.estado,
+  nota: ins.nota,                    
+  observaciones: ins.observaciones, 
+})),
     });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error en el servidor", error: error.message });
+  }
+};
+// ============================================================
+// PUT /api/cursos/:id/horario — actualizar horario del curso
+// ============================================================
+const actualizarHorario = async (req, res) => {
+  try {
+    const curso = await Curso.findById(req.params.id);
+    if (!curso) {
+      return res.status(404).json({ message: "Curso no encontrado" });
+    }
+
+    if (
+      curso.instructor_id.toString() !== req.usuario.id &&
+      req.usuario.rol !== "Admin"
+    ) {
+      return res.status(403).json({ message: "No tienes permiso" });
+    }
+
+    const { dias, hora_inicio, hora_fin, modalidad, lugar } = req.body;
+
+    curso.horario = {
+      dias: dias || [],
+      hora_inicio: hora_inicio || "",
+      hora_fin: hora_fin || "",
+      modalidad: modalidad || "Virtual",
+      lugar: lugar || "",
+    };
+
+    await curso.save();
+
+    res.json({ message: "Horario actualizado", horario: curso.horario });
+  } catch (error) {
+    res.status(500).json({ message: "Error en el servidor", error: error.message });
+  }
+};
+
+// ============================================================
+// PUT /api/cursos/:cursoId/estudiantes/:inscripcionId/nota
+// ============================================================
+const actualizarNota = async (req, res) => {
+  try {
+    const { nota, observaciones, progreso } = req.body;
+
+    const inscripcion = await Inscripcion.findById(req.params.inscripcionId);
+    if (!inscripcion) {
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+    }
+
+    // Verificar que el instructor sea dueño del curso
+    const curso = await Curso.findById(inscripcion.curso_id);
+    if (
+      curso.instructor_id.toString() !== req.usuario.id &&
+      req.usuario.rol !== "Admin"
+    ) {
+      return res.status(403).json({ message: "No tienes permiso" });
+    }
+
+    if (nota !== undefined) inscripcion.nota = nota;
+    if (observaciones !== undefined) inscripcion.observaciones = observaciones;
+    if (progreso !== undefined) inscripcion.progreso = progreso;
+
+    await inscripcion.save();
+
+    res.json({
+      message: "Nota actualizada",
+      inscripcion: {
+        _id: inscripcion._id,
+        nota: inscripcion.nota,
+        observaciones: inscripcion.observaciones,
+        progreso: inscripcion.progreso,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error en el servidor", error: error.message });
   }
 };
 
@@ -375,4 +452,7 @@ module.exports = {
   agregarLeccion,
   misCursosComoInstructor,
   estudiantesDelCurso,
+  actualizarHorario,
+  actualizarNota,
 };
+  

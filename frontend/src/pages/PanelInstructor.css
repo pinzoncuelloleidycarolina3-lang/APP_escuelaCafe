@@ -1,0 +1,714 @@
+/* ==================== PANEL INSTRUCTOR - COMPLETO ==================== */
+
+.perfil-wrapper {
+  min-height: 100vh;
+  background: #f8f5f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ----- NAVBAR ----- */
+.perfil-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #e8e0d5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-icon {
+  background: #5c3a1e;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #5c3a1e;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.8rem;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #6b5b4f;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.navbar-links a:hover,
+.navbar-links a.activo {
+  color: #5c3a1e;
+  font-weight: 600;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.navbar-rol {
+  background: #f0e6d8;
+  color: #5c3a1e;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-cerrar-sesion {
+  background: transparent;
+  border: 1.5px solid #d4c4b0;
+  color: #5c3a1e;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-cerrar-sesion:hover {
+  background: #5c3a1e;
+  color: white;
+  border-color: #5c3a1e;
+}
+
+/* ----- HERO ----- */
+.perfil-hero {
+  background: linear-gradient(135deg, #5c3a1e 0%, #7a4f2e 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.perfil-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.perfil-hero p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+/* ----- CONTENT ----- */
+.perfil-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ----- MÉTRICAS ----- */
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.metrica-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(92, 58, 30, 0.06);
+  text-align: center;
+  border: 1px solid #f0e8df;
+}
+
+.metrica-card.metrica-ingresos {
+  background: #5c3a1e;
+  color: white;
+  border: none;
+}
+
+.metrica-valor {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #5c3a1e;
+  margin-bottom: 0.25rem;
+}
+
+.metrica-ingresos .metrica-valor {
+  color: #f5c518;
+}
+
+.metrica-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #5c3a1e;
+}
+
+.metrica-ingresos .metrica-label {
+  color: #f0e6d8;
+}
+
+.metrica-desc {
+  font-size: 0.8rem;
+  color: #9a8a7a;
+}
+
+.metrica-ingresos .metrica-desc {
+  color: #c4b5a5;
+}
+
+/* ----- TABS ----- */
+.tabs-instructor {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e8e0d5;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #8a7a6a;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab.activo {
+  color: #5c3a1e;
+  font-weight: 700;
+  border-bottom-color: #5c3a1e;
+}
+
+/* ----- CURSOS ----- */
+.cursos-titulo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.cursos-titulo-row h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #5c3a1e;
+}
+
+.btn-primario {
+  background: #5c3a1e;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.btn-primario:hover {
+  background: #4a2e16;
+}
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.curso-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.4rem;
+  box-shadow: 0 2px 10px rgba(92, 58, 30, 0.06);
+  border: 1px solid #f0e8df;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.curso-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.badge-basico {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.badge-intermedio {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge-avanzado {
+  background: #fde8e8;
+  color: #c0392b;
+}
+
+.estado-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+.estado-publicado {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.estado-borrador {
+  background: #f0f0f0;
+  color: #6c757d;
+}
+
+.curso-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+}
+
+.curso-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #8a7a6a;
+  flex-grow: 1;
+}
+
+.curso-stats {
+  display: flex;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid #f0e8df;
+  border-bottom: 1px solid #f0e8df;
+}
+
+.curso-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.curso-stats strong {
+  font-size: 1rem;
+  color: #5c3a1e;
+}
+
+.curso-stats span {
+  font-size: 0.75rem;
+  color: #9a8a7a;
+  margin-top: 2px;
+}
+
+/* ===== BOTONES DE CADA CURSO ===== */
+.botones-curso {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.btn-ver-estudiantes {
+  flex: 1;
+  background: #5c3a1e;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-ver-estudiantes:hover {
+  background: #4a2e16;
+}
+
+.btn-horario {
+  background: #f0e6d8;
+  color: #5c3a1e;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-horario:hover {
+  background: #5c3a1e;
+  color: white;
+}
+
+.horario-mini {
+  font-size: 0.8rem;
+  color: #6b5b4f;
+  background: #f8f5f0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* ----- ESTUDIANTES ----- */
+.estudiantes-seccion {
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(92, 58, 30, 0.06);
+}
+
+.btn-volver {
+  background: #f0e6d8;
+  border: none;
+  color: #5c3a1e;
+  padding: 0.55rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 1.2rem;
+  transition: all 0.2s;
+}
+
+.btn-volver:hover {
+  background: #e0d0bc;
+}
+
+.estudiantes-seccion h2 {
+  margin: 0 0 1.2rem;
+  font-size: 1.2rem;
+  color: #5c3a1e;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+.tabla-estudiantes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tabla-estudiantes th {
+  background: #f8f5f0;
+  color: #5c3a1e;
+  font-weight: 700;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid #e8e0d5;
+}
+
+.tabla-estudiantes td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f0e8df;
+  color: #4a3c30;
+}
+
+.tabla-estudiantes tr:hover {
+  background: #fdfaf6;
+}
+
+.progreso-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100px;
+}
+
+.progreso-fill {
+  height: 8px;
+  background: #5c3a1e;
+  border-radius: 4px;
+}
+
+.progreso-bar span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5c3a1e;
+}
+
+.badge-estado {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+}
+
+.badge-estado.activo {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.badge-estado.completado {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-estado.cancelado {
+  background: #fde8e8;
+  color: #c0392b;
+}
+
+.input-nota {
+  width: 70px;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #e0d0bc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.btn-editar-nota,
+.btn-guardar-nota,
+.btn-cancelar-nota {
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-editar-nota {
+  background: #f0e6d8;
+  color: #5c3a1e;
+}
+
+.btn-guardar-nota {
+  background: #5c3a1e;
+  color: white;
+  margin-right: 0.3rem;
+}
+
+.btn-cancelar-nota {
+  background: #eee;
+  color: #666;
+}
+
+.sin-nota {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.acciones-nota {
+  display: flex;
+  gap: 0.3rem;
+}
+
+/* ==================== HORARIO BONITO ==================== */
+
+.horario-form {
+  max-width: 620px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(92, 58, 30, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.horario-form h2 {
+  text-align: center;
+  color: #5c3a1e;
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+  color: #5c3a1e;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0d0bc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #3d2b1f;
+  background: #fdfaf7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #5c3a1e;
+  box-shadow: 0 0 0 3px rgba(92, 58, 30, 0.12);
+  background: white;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+/* Días de la semana - PÍLDORAS */
+.dias-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.dia-btn {
+  padding: 0.55rem 1.15rem;
+  border: 2px solid #e0d0bc;
+  background: #fff;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b5b4f;
+  transition: all 0.2s ease;
+  min-width: 95px;
+  text-align: center;
+}
+
+.dia-btn:hover {
+  border-color: #5c3a1e;
+  color: #5c3a1e;
+  background: #fdf8f3;
+  transform: translateY(-1px);
+}
+
+.dia-btn.activo {
+  background: linear-gradient(135deg, #5c3a1e, #7a4f2e);
+  color: white;
+  border-color: #5c3a1e;
+  box-shadow: 0 4px 12px rgba(92, 58, 30, 0.25);
+  font-weight: 600;
+}
+
+/* Botón Guardar horario */
+.btn-guardar-horario {
+  background: linear-gradient(135deg, #5c3a1e, #7a4f2e);
+  color: white;
+  border: none;
+  padding: 0.9rem 2.2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 14px rgba(92, 58, 30, 0.25);
+  align-self: center;
+  min-width: 220px;
+}
+
+.btn-guardar-horario:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(92, 58, 30, 0.35);
+  background: linear-gradient(135deg, #4a2e16, #6b3f22);
+}
+
+/* Mensajes */
+.perfil-mensaje {
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.perfil-mensaje.exito {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.perfil-mensaje.error {
+  background: #fde8e8;
+  color: #c0392b;
+}
+
+.sin-cursos {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9a8a7a;
+  background: white;
+  border-radius: 14px;
+  border: 1px dashed #e0d0bc;
+}
+
+.perfil-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: #5c3a1e;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e8e0d5;
+  border-top-color: #5c3a1e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metricas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cursos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .botones-curso {
+    flex-direction: column;
+  }
+}

@@ -4,7 +4,7 @@ const inscripcionSchema = new mongoose.Schema(
   {
     usuario_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuario",
+      ref: "usuario",
       required: true,
     },
     curso_id: {
@@ -21,6 +21,19 @@ const inscripcionSchema = new mongoose.Schema(
       default: "Activo",
     },
     progreso: { type: Number, default: 0, min: 0, max: 100 },
+
+    // ===== NUEVO: NOTAS =====
+    nota: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: null, // null = aún no calificado
+    },
+    observaciones: {
+      type: String,
+      default: "",
+    },
+
     fecha_inscripcion: { type: Date, default: Date.now },
   },
   {
@@ -29,7 +42,6 @@ const inscripcionSchema = new mongoose.Schema(
   }
 );
 
-// Un usuario no puede inscribirse 2 veces al mismo curso
 inscripcionSchema.index({ usuario_id: 1, curso_id: 1 }, { unique: true });
 
 module.exports = mongoose.model("Inscripcion", inscripcionSchema);

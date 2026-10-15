@@ -1,9 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Usuario = require("../models/Usuario");
+const Usuario = require("../models/usuario");
 const { registrarLog } = require("../utils/logger");
 
-// HU-01: Registro de usuario con validación de datos y contraseña hasheada
+// HU-01: Registro de usuario
 const registro = async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
@@ -43,7 +43,7 @@ const registro = async (req, res) => {
   }
 };
 
-// HU-02: Login de usuario con JWT y registro de trazabilidad en system_logs
+// HU-02: Login de usuario
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -56,7 +56,6 @@ const login = async (req, res) => {
 
     const usuario = await Usuario.findOne({ email });
 
-    //  Caso 1: el usuario no existe
     if (!usuario) {
       await registrarLog(
         "WARNING",
@@ -68,7 +67,6 @@ const login = async (req, res) => {
 
     const passwordValido = await bcrypt.compare(password, usuario.password);
 
-    // Caso 2: contraseña incorrecta
     if (!passwordValido) {
       await registrarLog(
         "WARNING",
@@ -78,9 +76,6 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Caso 3: login exitoso
-    await registrarLog("INFO", req.ip, `Login exitoso para ${email}`);
-
     const token = jwt.sign(
       {
         id: usuario._id,
@@ -89,7 +84,13 @@ const login = async (req, res) => {
         rol: usuario.rol,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "8h" }
+    );
+
+    await registrarLog(
+      "INFO",
+      req.ip,
+      `Login exitoso: ${usuario.email} (${usuario.rol})`
     );
 
     res.json({
@@ -100,21 +101,36 @@ const login = async (req, res) => {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol,
+        telefono: usuario.telefono || "",
+        biografia: usuario.biografia || "",
+        foto: usuario.foto || null,
       },
     });
   } catch (error) {
-    //  Caso 4: error inesperado del servidor
-    await registrarLog("ERROR", req.ip, `Error en login: ${error.message}`);
     res
       .status(500)
       .json({ message: "Error en el servidor", error: error.message });
   }
 };
 
+// GET /api/auth/perfil
 const perfil = async (req, res) => {
   try {
-    const { id, nombre, email, rol } = req.usuario;
-    res.json({ id, nombre, email, rol });
+    const usuario = await Usuario.findById(req.usuario.id).select("-password");
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({
+      id: usuario._id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol,
+      telefono: usuario.telefono || "",
+      biografia: usuario.biografia || "",
+      foto: usuario.foto || null,
+    });
   } catch (error) {
     res
       .status(500)
@@ -122,4 +138,44 @@ const perfil = async (req, res) => {
   }
 };
 
-module.exports = { registro, login, perfil };
+// PUT /api/auth/perfil — editar perfil
+const actualizarPerfil = async (req, res) => {
+  try {
+    const { nombre, telefono, biografia } = req.body;
+
+    const usuario = await Usuario.findById(req.usuario.id);
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (nombre) usuario.nombre = nombre.trim();
+    if (telefono !== undefined) usuario.telefono = telefono.trim();
+    if (biografia !== undefined) usuario.biografia = biografia.trim();
+
+    await usuario.save();
+
+    res.json({
+      message: "Perfil actualizado correctamente",
+      usuario: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+        telefono: usuario.telefono,
+        biografia: usuario.biografia,
+        foto: usuario.foto,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error en el servidor", error: error.message });
+  }
+};
+
+module.exports = {
+  registro,
+  login,
+  perfil,
+  actualizarPerfil,
+};

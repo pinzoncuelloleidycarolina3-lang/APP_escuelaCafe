@@ -8,8 +8,10 @@ const {
   archivarCurso,
   agregarModulo,
   agregarLeccion,
-   misCursosComoInstructor,      
+  misCursosComoInstructor,      
   estudiantesDelCurso,
+  actualizarHorario,
+  actualizarNota,
 } = require("../controllers/cursosController");
 const {
   verificarToken,
@@ -30,6 +32,20 @@ router.get(
   verificarToken,
   soloInstructor,
   estudiantesDelCurso
+);
+
+router.put(
+  "/:id/horario",
+  verificarToken,
+  soloInstructor,
+  actualizarHorario
+);
+
+router.put(
+  "/:cursoId/estudiantes/:inscripcionId/nota",
+  verificarToken,
+  soloInstructor,
+  actualizarNota
 );
 
 // Rutas públicas

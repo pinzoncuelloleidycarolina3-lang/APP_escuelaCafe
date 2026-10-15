@@ -37,11 +37,24 @@ const cursoSchema = new mongoose.Schema(
     },
     instructor_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuario",
+      ref: "usuario",
       required: true,
     },
     instructor: { type: String, required: true },
     modulos: [moduloSchema],
+
+    // ===== NUEVO: HORARIO =====
+    horario: {
+      dias: [{ type: String }], // Ej: ["Lunes", "Miércoles"]
+      hora_inicio: { type: String, default: "" }, // "08:00"
+      hora_fin: { type: String, default: "" },   // "10:00"
+      modalidad: {
+        type: String,
+        enum: ["Presencial", "Virtual", "Híbrida"],
+        default: "Virtual",
+      },
+      lugar: { type: String, default: "" }, // Zoom / salón
+    },
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

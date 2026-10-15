@@ -15,9 +15,9 @@ const carritoSchema = new mongoose.Schema(
   {
     usuario_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuario",
+      ref: "usuario",
       required: true,
-      unique: true,
+     
     },
     items: [itemCarritoSchema],
     total: { type: Number, default: 0 },

@@ -260,4 +260,41 @@
   .miscursos-grid {
     grid-template-columns: 1fr;
   }
+  
+  .miscursos-horario {
+  background: #f8f5f0;
+  padding: 0.7rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #5c3a1e;
+  margin: 0.5rem 0;
+}
+
+.miscursos-horario.vacio {
+  color: #999;
+  font-style: italic;
+}
+
+.miscursos-nota {
+  margin: 0.6rem 0;
+}
+
+.nota-label {
+  font-size: 0.85rem;
+  color: #6b5b4f;
+  margin-right: 0.4rem;
+}
+
+.nota-valor {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #5c3a1e;
+}
+
+.nota-obs {
+  font-size: 0.8rem;
+  color: #8a7a6a;
+  margin-top: 0.3rem;
+}
+
 }

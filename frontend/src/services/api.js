@@ -33,6 +33,20 @@ export const logout = () => {
   localStorage.removeItem("usuario");
 };
 
+export const actualizarHorario = async (cursoId, horarioData) => {
+  const { data } = await api.put(`/cursos/${cursoId}/horario`, horarioData);
+  return data;
+};
+
+export const actualizarNota = async (cursoId, inscripcionId, notaData) => {
+  const { data } = await api.put(
+    `/cursos/${cursoId}/estudiantes/${inscripcionId}/nota`,
+    notaData
+  );
+  return data;
+};
+
+
 // ============ CURSOS ============
 export const listarCursos = async () => {
   const { data } = await api.get("/cursos");

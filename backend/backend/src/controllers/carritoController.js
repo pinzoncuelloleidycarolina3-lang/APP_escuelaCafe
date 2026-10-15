@@ -169,16 +169,25 @@ const checkout = async (req, res) => {
 };
 
 // GET /api/carrito/inscripciones — ver mis cursos inscritos
+
 const misInscripciones = async (req, res) => {
   try {
     const inscripciones = await Inscripcion.find({
       usuario_id: req.usuario.id,
-    }).populate("curso_id", "titulo descripcion nivel precio");
+    }).sort({ fecha_inscripcion: -1 });
 
-    res.json({
-      total: inscripciones.length,
-      inscripciones,
-    });
+    // Traer el horario de cada curso
+    const conHorario = await Promise.all(
+      inscripciones.map(async (ins) => {
+        const curso = await Curso.findById(ins.curso_id).select("horario");
+        return {
+          ...ins.toObject(),
+          horario: curso?.horario || null,
+        };
+      })
+    );
+
+    res.json({ inscripciones: conHorario });
   } catch (error) {
     res
       .status(500)
