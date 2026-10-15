@@ -8,12 +8,29 @@ const {
   archivarCurso,
   agregarModulo,
   agregarLeccion,
+   misCursosComoInstructor,      
+  estudiantesDelCurso,
 } = require("../controllers/cursosController");
 const {
   verificarToken,
   soloInstructor,
   soloAdmin,
 } = require("../middlewares/auth");
+
+// Rutas del instructor (deben ir ANTES de /:id para evitar conflictos)
+router.get(
+  "/mis-cursos",
+  verificarToken,
+  soloInstructor,
+  misCursosComoInstructor
+);
+
+router.get(
+  "/:id/estudiantes",
+  verificarToken,
+  soloInstructor,
+  estudiantesDelCurso
+);
 
 // Rutas públicas
 router.get("/", listarCursos); // GET  /api/cursos
@@ -32,5 +49,7 @@ router.post(
   soloInstructor,
   agregarLeccion
 ); // POST /api/cursos/:id/modulos/:moduloId/lecciones
+
+
 
 module.exports = router;

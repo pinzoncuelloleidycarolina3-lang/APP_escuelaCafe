@@ -48,6 +48,16 @@ export const crearCurso = async (cursoData) => {
   const { data } = await api.post("/cursos", cursoData);
   return data;
 };
+export const misCursosComoInstructor = async () => {
+  const { data } = await api.get("/cursos/mis-cursos");
+  return data;
+};
+
+export const estudiantesDelCurso = async (cursoId) => {
+  const { data } = await api.get(`/cursos/${cursoId}/estudiantes`);
+  return data;
+};
+
 
 // ============ CARRITO ============
 export const verCarrito = async () => {
@@ -60,6 +70,7 @@ export const agregarAlCarrito = async (curso_id) => {
   return data;
 };
 
+
 export const checkout = async () => {
   const { data } = await api.post("/carrito/checkout");
   return data;
@@ -69,5 +80,11 @@ export const misInscripciones = async () => {
   const { data } = await api.get("/carrito/inscripciones");
   return data;
 };
+
+export const quitarDelCarrito = async (itemId) => {
+  const { data } = await api.delete(`/carrito/${itemId}`);
+  return data;
+};
+
 
 export default api;

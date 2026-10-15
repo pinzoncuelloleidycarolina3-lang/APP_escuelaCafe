@@ -1,12 +1,14 @@
 const Curso = require("../models/Curso");
+const Inscripcion = require("../models/Inscripcion");
 
+// ============================================================
 // GET /api/cursos — listar cursos publicados (HU-06)
+// ============================================================
 const listarCursos = async (req, res) => {
   try {
     const { nivel, buscar, page = 1 } = req.query;
     const porPagina = 10;
 
-    // Construir filtro
     const filtro = { estado: "Publicado" };
 
     if (nivel) {
@@ -37,7 +39,9 @@ const listarCursos = async (req, res) => {
   }
 };
 
+// ============================================================
 // GET /api/cursos/:id — detalle de un curso (HU-06)
+// ============================================================
 const obtenerCurso = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);
@@ -52,7 +56,9 @@ const obtenerCurso = async (req, res) => {
   }
 };
 
+// ============================================================
 // POST /api/cursos — crear curso (HU-05)
+// ============================================================
 const crearCurso = async (req, res) => {
   try {
     const { titulo, descripcion, nivel, precio, duracion_horas, cupos_max } =
@@ -104,7 +110,9 @@ const crearCurso = async (req, res) => {
   }
 };
 
+// ============================================================
 // PUT /api/cursos/:id — editar curso (HU-05)
+// ============================================================
 const editarCurso = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);
@@ -150,7 +158,9 @@ const editarCurso = async (req, res) => {
   }
 };
 
+// ============================================================
 // DELETE /api/cursos/:id — archivar curso (HU-05)
+// ============================================================
 const archivarCurso = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);
@@ -169,7 +179,9 @@ const archivarCurso = async (req, res) => {
   }
 };
 
+// ============================================================
 // POST /api/cursos/:id/modulos — agregar módulo (HU-07)
+// ============================================================
 const agregarModulo = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);
@@ -213,7 +225,9 @@ const agregarModulo = async (req, res) => {
   }
 };
 
+// ============================================================
 // POST /api/cursos/:id/modulos/:moduloId/lecciones — agregar lección (HU-07)
+// ============================================================
 const agregarLeccion = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);
@@ -262,6 +276,95 @@ const agregarLeccion = async (req, res) => {
   }
 };
 
+// ============================================================
+// GET /api/cursos/mis-cursos — cursos del instructor con estadísticas
+// ============================================================
+const misCursosComoInstructor = async (req, res) => {
+  try {
+    const cursos = await Curso.find({ instructor_id: req.usuario.id });
+
+    // Para cada curso, contar cuántos estudiantes se inscribieron
+    const cursosConEstadisticas = await Promise.all(
+      cursos.map(async (curso) => {
+        const totalInscritos = await Inscripcion.countDocuments({
+          curso_id: curso._id,
+        });
+
+        const inscripciones = await Inscripcion.find({ curso_id: curso._id });
+        const ingresos = inscripciones.reduce(
+          (acc, ins) => acc + (ins.precio_pagado || 0),
+          0
+        );
+
+        return {
+          ...curso.toObject(),
+          total_inscritos: totalInscritos,
+          ingresos_totales: ingresos,
+        };
+      })
+    );
+
+    res.json({
+      total_cursos: cursos.length,
+      cursos: cursosConEstadisticas,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error en el servidor", error: error.message });
+  }
+};
+
+// ============================================================
+// GET /api/cursos/:id/estudiantes — lista estudiantes inscritos al curso
+// ============================================================
+const estudiantesDelCurso = async (req, res) => {
+  try {
+    const curso = await Curso.findById(req.params.id);
+    if (!curso) {
+      return res.status(404).json({ message: "Curso no encontrado" });
+    }
+
+    // Solo el instructor dueño o Admin pueden ver
+    if (
+      curso.instructor_id.toString() !== req.usuario.id &&
+      req.usuario.rol !== "Admin"
+    ) {
+      return res
+        .status(403)
+        .json({ message: "No tienes permiso para ver este curso" });
+    }
+
+    const inscripciones = await Inscripcion.find({ curso_id: req.params.id })
+      .populate("usuario_id", "nombre email")
+      .sort({ fecha_inscripcion: -1 });
+
+    res.json({
+      curso: {
+        _id: curso._id,
+        titulo: curso.titulo,
+        total_inscritos: inscripciones.length,
+      },
+      estudiantes: inscripciones.map((ins) => ({
+        _id: ins._id,
+        nombre: ins.usuario_id?.nombre || "Usuario eliminado",
+        email: ins.usuario_id?.email || "-",
+        fecha_inscripcion: ins.fecha_inscripcion,
+        precio_pagado: ins.precio_pagado,
+        progreso: ins.progreso,
+        estado: ins.estado,
+      })),
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error en el servidor", error: error.message });
+  }
+};
+
+// ============================================================
+// EXPORTS
+// ============================================================
 module.exports = {
   listarCursos,
   obtenerCurso,
@@ -270,4 +373,6 @@ module.exports = {
   archivarCurso,
   agregarModulo,
   agregarLeccion,
+  misCursosComoInstructor,
+  estudiantesDelCurso,
 };
