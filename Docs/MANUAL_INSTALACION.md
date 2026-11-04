@@ -1,28 +1,26 @@
-# MANUAL DE INSTALACIÓN Y DESPLIEGUE - ESCUELA CAFÉ
+# 🛠️ Manual de Instalación y Despliegue - Docker Flask
 
-**Proyecto:** Escuela Café (Plataforma educativa)
-**Stack:** Node.js (Backend) + React/Vite (Frontend) + MongoDB Atlas (Base de Datos).
+## 1. Descripción del Proyecto
+Este documento describe el proceso de despliegue de la API **Docker Flask**, configurada en un clúster local de Alta Disponibilidad utilizando Docker Compose. La arquitectura incluye balanceo de carga, límites de recursos y observabilidad en tiempo real.
 
-## 📖 1. Descripción General del Proyecto (¿Cómo funciona?)
-**Escuela Café** es una plataforma educativa tipo *Classroom* diseñada para gestionar cursos de emprendimiento. Su arquitectura es **Cliente-Servidor (Full Stack)**:
+## 2. Arquitectura del Sistema
+- **Proxy Inverso / Balanceador:** Nginx (Puerto 80)
+- **Backend:** Flask + Gunicorn (4 réplicas, Puerto interno 5000)
+- **Base de Datos:** MySQL (configurada en el docker-compose)
+- **Observabilidad:** Dozzle (Puerto 8080)
+- **Pruebas de Carga:** Locust (Puerto 8089)
 
-*   **Frontend (React + Vite):** Es la interfaz gráfica (puerto 5173). Se comunica con el backend mediante peticiones HTTP (Axios) y guarda el token de sesión en el `localStorage`.
-*   **Backend (Node.js + Express):** Es el "cerebro" (puerto 3000). Contiene la lógica de negocio, validaciones de seguridad (JWT) y control de acceso.
-*   **Base de Datos (MongoDB Atlas):** Base de datos NoSQL en la nube donde se guardan las colecciones de `usuarios`, `cursos`, `carritos`, `inscripciones` y `system_logs`.
+## 3. Prerrequisitos de Software
+Antes de iniciar, asegúrese de tener instalado:
+* **Docker Engine** (v20.10 o superior) - *En Windows se instala con Docker Desktop.*
+* **Docker Compose** (v2.0 o superior)
+* **Git**
+* Sistema Operativo: Windows 11 (con WSL2) o Linux Ubuntu 22.04.
 
----
+## 4. Pasos de Instalación
 
-## 🛠️ 2. Requisitos Previos (Antes de empezar)
-Asegúrate de tener instalado:
-1. **Node.js** (Versión 18 o superior). Verifícalo con: `node -v`
-2. **Git**. Verifícalo con: `git --version`
-3. **Visual Studio Code** (o cualquier editor).
-4. **Conexión a Internet**.
-
----
-
-## 🚀 3. Clonar el Repositorio
-1. Abre una terminal (PowerShell en Windows).
-2. Ejecuta:
-   ```bash
-   git clone https://github.com/pinzoncuelloleidycarolina3-lang/APP_escuelaCafe.git
+### Paso 1: Clonar el repositorio
+Abra una terminal y ejecute:
+```bash
+git clone https://github.com/pinzoncuelloleidycarolina3-lang/docker_flask.git
+cd docker_flask

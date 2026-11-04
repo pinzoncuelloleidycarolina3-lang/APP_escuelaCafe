@@ -1,58 +1,49 @@
-# RUNBOOK DE INCIDENTES Y RESOLUCIÓN DE PROBLEMAS
-**Proyecto:** Escuela Café
-**Arquitectura de Despliegue (Simulada para Producción):** Frontend (React) + Backend (Node.js con 4 réplicas) + Nginx (Proxy Inverso) + MongoDB Atlas + Monitoreo (Dozzle y Locust).
-
-Este documento es la guía oficial de respuesta rápida para diagnosticar y resolver incidentes en el sistema, garantizando la continuidad del servicio.
 
 ---
 
-##  Incidente 1: Error 502 Bad Gateway en el Frontend
-**Síntoma:** Al intentar iniciar sesión o cargar la página, el navegador muestra un error 502 y la consola dice `Failed to load resource`.
-**Causa Probable:** Nginx no puede comunicarse con las réplicas del Backend (Node.js).
-**Diagnóstico:**
-1. Abrir **Dozzle** (Monitor de Docker) en `http://localhost:8080`.
-2. Revisar los logs del contenedor de Nginx y de las réplicas de Node.js.
-3. Verificar el estado de los contenedores ejecutando `docker-compose ps` en la terminal.
-**Solución:**
-1. Si las réplicas están caídas, reiniciar el servicio con: `docker-compose restart backend`.
-2. Verificar que el archivo `nginx.conf` apunte al puerto correcto (3000).
-3. Si el problema persiste, escalar las réplicas: `docker-compose up -d --scale backend=4`.
+```markdown
+#  RUNBOOK DE INCIDENTES - ARQUITECTURA DOCKER FLASK
 
-##  Incidente 2: El Backend no arranca (Error de conexión a Base de Datos)
-**Síntoma:** La terminal muestra `Error al conectar a MongoDB: connect ETIMEDOUT` o `Authentication failed`.
-**Causa Probable:** La IP del servidor no está autorizada en MongoDB Atlas o las credenciales del `.env` son incorrectas.
-**Diagnóstico:**
-1. Revisar que el archivo `.env` tenga la URL correcta de MongoDB (`MONGODB_URI`).
-2. Verificar en MongoDB Atlas (Network Access) si la IP del contenedor/servidor está en la lista.
-**Solución:**
-1. Entrar a MongoDB Atlas > Network Access.
-2. Agregar la IP actual o permitir el acceso temporal (`0.0.0.0/0`).
-3. Reiniciar el backend (`docker-compose restart backend`).
+Este documento es la guía oficial de respuesta rápida para diagnosticar y resolver incidentes en el entorno de producción basado en contenedores.
 
-##  Incidente 3: Fallo en las pruebas de carga (Locust)
-**Síntoma:** Al ejecutar Locust simulando 100 usuarios concurrentes, la tasa de errores HTTP 500 supera el 1%.
-**Causa Probable:** Cuello de botella en la base de datos o límite de conexiones excedido en Node.js.
+## Incidente 1: Error 502 Bad Gateway en el navegador
+**Síntoma:** Al intentar acceder a la aplicación, Nginx muestra un error 502.
+**Causa Probable:** Nginx no puede comunicarse con las réplicas de Flask (los contenedores de la app están caídos o reiniciándose).
 **Diagnóstico:**
-1. Revisar las métricas de rendimiento en los logs de Node.js.
-2. Verificar el uso de CPU y RAM en Dozzle.
-**Solución:**
-1. Verificar que el "Pool de conexiones" de Mongoose esté configurado para soportar las 4 réplicas.
-2. Si es necesario, escalar verticalmente la base de datos en MongoDB Atlas (aumentar el tier).
+1. Ingresar a Dozzle (`http://localhost:8080`) y filtrar por el contenedor de Nginx.
+2. Revisar los logs de las réplicas de Flask en Dozzle buscando errores en Python.
+**Resolución:**
+1. Ejecutar `docker compose logs app` para ver el error detallado.
+2. Si hay un error en el código, corregirlo.
+3. Reiniciar la arquitectura completa: `docker compose down` y luego `docker compose up -d --scale app=4`.
 
-##  Incidente 4: Token JWT Expirado (Error 401 Unauthorized)
-**Síntoma:** El usuario es redirigido al Login de forma repentina al intentar ver "Mis Cursos" o el "Panel Instructor".
-**Causa Probable:** El token JWT emitido por el backend tiene un tiempo de vida de 24 horas y ha expirado.
-**Solución:**
-1. En el Frontend, hacer clic en "Cerrar sesión" para borrar el token viejo del `localStorage`.
-2. Volver a iniciar sesión para generar un nuevo token de acceso.
-3. (Para desarrolladores) Verificar que el `JWT_SECRET` en el `.env` no haya cambiado.
+## Incidente 2: El contenedor de la App se detiene inesperadamente (OOM)
+**Síntoma:** Dozzle muestra que una o varias réplicas de Flask se detuvieron de repente.
+**Causa Probable:** Out Of Memory (OOM). El contenedor excedió el límite de memoria RAM asignado.
+**Resolución:**
+1. Revisar el consumo actual con: `docker stats`.
+2. Si el consumo es muy alto, ajustar los límites en el `docker-compose.yml` bajo la etiqueta `deploy.resources.limits.memory`.
+3. Reiniciar el servicio: `docker compose restart app`.
 
-##  Incidente 5: El servicio Frontend se cae o da error de módulos
-**Síntoma:** Vite o el navegador muestran `Cannot find module` o `Failed to resolve import`.
-**Causa Probable:** Las dependencias no están instaladas o se borró algún archivo `.jsx`.
-**Diagnóstico:**
-1. Revisar la terminal del Frontend.
-**Solución:**
-1. Detener el proceso (`Ctrl + C`).
-2. Eliminar la carpeta `node_modules` y ejecutar `npm install`.
-3. Volver a iniciar con `npm run dev`.
+##  Incidente 3: Fallo en el Pipeline de GitHub Actions (CI/CD)
+**Síntoma:** En la pestaña "Actions" de GitHub, el workflow `deploy.yml` muestra un tache rojo 
+**Causa Probable:** Fallo en la autenticación SSH, falta de una variable secreta, o error de sintaxis en el archivo YAML.
+**Resolución:**
+1. Entrar a GitHub -> Actions -> Hacer clic en el workflow fallido.
+2. Leer el paso exacto donde se detuvo.
+3. Validar en GitHub (Settings -> Secrets and variables -> Actions) que las llaves SSH y las IPs estén correctamente guardadas.
+
+##  Incidente 4: Locust reporta Timeouts masivos en la prueba de carga
+**Síntoma:** Al correr las pruebas de estrés con Locust, la tasa de fallos supera el 5%.
+**Causa Probable:** Nginx no está balanceando bien la carga o el Pool de conexiones está saturado.
+**Resolución:**
+1. Revisar el archivo `default.conf` (Nginx) para asegurarse de que apunte correctamente al servicio `app` de Docker Compose.
+2. Verificar que las 4 réplicas estén activas con `docker compose ps`.
+3. Escalar horizontalmente a 8 réplicas temporalmente: `docker compose up -d --scale app=8`.
+
+##  Incidente 5: Pérdida de acceso a Dozzle (puerto 8080)
+**Síntoma:** La URL `http://localhost:8080` no carga.
+**Causa Probable:** El contenedor de Dozzle se cayó o el puerto está ocupado.
+**Resolución:**
+1. Verificar si el contenedor está corriendo: `docker compose ps`.
+2. Si el estado es "Exit", levantarlo de nuevo: `docker compose up -d dozzle`.
