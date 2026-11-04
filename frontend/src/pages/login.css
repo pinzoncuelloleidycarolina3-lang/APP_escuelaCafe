@@ -1,323 +1,372 @@
-/* ===== RESET Y VARIABLES ===== */
+/* ==================== VARIABLES BASE ==================== */
 :root {
-  --cafe-primario: #6f4e37;
   --cafe-oscuro: #3e2723;
+  --cafe-primario: #6f4e37;
   --cafe-medio: #8b5e3c;
   --cafe-claro: #d7ccc8;
   --crema: #f5f0e8;
-  --dorado: #c9a961;
   --blanco: #ffffff;
-  --error: #d32f2f;
+  --error: #e53935;
   --error-bg: #ffebee;
-  --sombra: 0 10px 40px rgba(62, 39, 35, 0.15);
+  --texto-gris: #6b5c4e;
 }
 
-/* ===== CONTENEDOR PRINCIPAL ===== */
+/* ==================== LAYOUT GENERAL ==================== */
 .login-container {
   display: flex;
   min-height: 100vh;
   font-family: "Segoe UI", "Roboto", Arial, sans-serif;
-  background: var(--crema);
+  transition: all 0.6s ease;
 }
 
-/* ===== PANEL IZQUIERDO (BRANDING) ===== */
+/* ==================== PANEL IZQUIERDO (Branding) ==================== */
 .login-branding {
   flex: 1;
-  background: linear-gradient(135deg, var(--cafe-oscuro) 0%, var(--cafe-primario) 100%);
-  color: var(--blanco);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 40px;
+  padding: 60px;
   position: relative;
   overflow: hidden;
+  transition: all 0.6s ease;
 }
 
+/* Efecto de fondo animado */
 .login-branding::before {
   content: "";
   position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(201, 169, 97, 0.15) 0%, transparent 70%);
-  top: -100px;
-  right: -100px;
+  width: 150%;
+  height: 150%;
   border-radius: 50%;
+  transition: all 0.6s ease;
+  opacity: 0.1;
 }
 
-.login-branding::after {
-  content: "";
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(201, 169, 97, 0.1) 0%, transparent 70%);
-  bottom: -80px;
-  left: -80px;
-  border-radius: 50%;
+/* --- TEMA ESTUDIANTE (Claro) --- */
+.theme-estudiante .login-branding {
+  background: linear-gradient(135deg, #fdfbf7 0%, #f5f0e8 100%);
+}
+.theme-estudiante .login-branding::before {
+  background: radial-gradient(circle, var(--cafe-medio) 0%, transparent 70%);
+  top: -20%;
+  right: -20%;
 }
 
-.login-branding-content {
+/* --- TEMA INSTRUCTOR (Oscuro) --- */
+.theme-instructor .login-branding {
+  background: linear-gradient(135deg, #2d1c18 0%, #4a2c20 100%);
+}
+.theme-instructor .login-branding::before {
+  background: radial-gradient(circle, var(--cafe-medio) 0%, transparent 70%);
+  bottom: -20%;
+  left: -20%;
+}
+
+/* Contenido del Branding */
+.branding-content {
   position: relative;
   z-index: 1;
-  text-align: center;
-  max-width: 400px;
+  max-width: 450px;
 }
 
-.login-logo {
-  font-size: 80px;
-  margin-bottom: 20px;
-  animation: flotar 3s ease-in-out infinite;
-}
-
-@keyframes flotar {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.login-branding-title {
-  font-size: 42px;
-  font-weight: 700;
-  margin: 0 0 15px 0;
-  letter-spacing: -0.5px;
-}
-
-.login-branding-subtitle {
-  font-size: 18px;
-  color: var(--cafe-claro);
-  margin-bottom: 50px;
-  font-style: italic;
-}
-
-.login-branding-features {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: left;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  font-size: 16px;
-  color: var(--crema);
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.feature-icon {
-  font-size: 24px;
-}
-
-/* ===== PANEL DERECHO (FORMULARIO) ===== */
-.login-form-panel {
-  flex: 1;
+.branding-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 40px;
-  background: var(--crema);
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 30px;
+  transition: all 0.6s ease;
 }
 
-.login-form-wrapper {
-  width: 100%;
-  max-width: 420px;
+.theme-estudiante .branding-logo {
+  background: var(--cafe-oscuro);
+  color: var(--blanco);
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.login-header h2 {
-  font-size: 32px;
+.theme-instructor .branding-logo {
+  background: var(--blanco);
   color: var(--cafe-oscuro);
-  margin: 0 0 10px 0;
-  font-weight: 700;
 }
 
-.login-header p {
+/* AQUÍ ESTABA EL ERROR DEL TEXTO BLANCO */
+.branding-title {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.1;
+  transition: all 0.6s ease;
+}
+
+.theme-estudiante .branding-title {
+  color: var(--cafe-oscuro); /* Color oscuro para fondo claro */
+}
+
+.theme-instructor .branding-title {
+  color: var(--blanco); /* Color blanco para fondo oscuro */
+}
+
+.branding-subtitle {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+  transition: all 0.6s ease;
+}
+
+.theme-estudiante .branding-subtitle {
+  color: var(--texto-gris);
+}
+
+.theme-instructor .branding-subtitle {
+  color: var(--cafe-claro);
+}
+
+.branding-features {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.feature {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  transition: all 0.6s ease;
+}
+
+.theme-estudiante .feature {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(111, 78, 55, 0.1);
+  color: var(--cafe-oscuro);
+}
+
+.theme-instructor .feature {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--blanco);
+}
+
+.feature span {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--cafe-medio);
+}
+
+.theme-instructor .feature span {
+  color: var(--cafe-claro);
+}
+
+/* ==================== PANEL DERECHO (Formulario) ==================== */
+.login-form-panel {
+  flex: 1;
+  background: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ==================== SELECTOR DE ROL (TABS) ==================== */
+.role-switcher {
+  display: flex;
+  background: var(--crema);
+  padding: 6px;
+  border-radius: 14px;
+  margin-bottom: 35px;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cafe-medio);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.role-btn.active {
+  background: var(--blanco);
+  color: var(--cafe-oscuro);
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.08);
+}
+
+/* ==================== HEADER DEL FORMULARIO ==================== */
+.form-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form-header h2 {
+  font-size: 28px;
+  color: var(--cafe-oscuro);
+  margin-bottom: 8px;
+}
+
+.form-header p {
   color: var(--cafe-medio);
   font-size: 15px;
-  margin: 0;
 }
 
-/* ===== MENSAJE DE ERROR ===== */
-.login-error {
+/* ==================== ERROR ==================== */
+.form-error {
   display: flex;
   align-items: center;
   gap: 10px;
   background: var(--error-bg);
   color: var(--error);
-  padding: 14px 18px;
+  padding: 14px;
   border-radius: 10px;
-  margin-bottom: 25px;
   font-size: 14px;
-  border-left: 4px solid var(--error);
-  animation: sacudir 0.4s ease;
+  font-weight: 500;
+  margin-bottom: 20px;
+  animation: shake 0.4s ease;
 }
 
-@keyframes sacudir {
+@keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
 
-/* ===== FORMULARIO ===== */
+/* ==================== CAMPOS DE ENTRADA ==================== */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
 }
 
-.form-group {
+.input-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.form-group label {
+.input-group label {
   font-size: 14px;
   font-weight: 600;
   color: var(--cafe-oscuro);
-  letter-spacing: 0.3px;
 }
 
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 16px;
-  font-size: 18px;
-  pointer-events: none;
-  opacity: 0.7;
-}
-
-.input-wrapper input {
+/* AQUÍ ESTABA EL ERROR DE LOS INPUTS OSCUROS */
+.input-group input {
   width: 100%;
-  padding: 15px 16px 15px 48px;
-  border: 2px solid var(--cafe-claro);
+  padding: 14px 16px;
+  border: 2px solid #e0d5ce;
   border-radius: 12px;
   font-size: 15px;
-  color: var(--cafe-oscuro);
-  background: var(--blanco);
-  transition: all 0.25s ease;
-  outline: none;
   font-family: inherit;
+  transition: all 0.2s;
+  /* Forzamos fondo blanco y texto oscuro para evitar modo oscuro del navegador */
+  background-color: #ffffff !important; 
+  color: var(--cafe-oscuro) !important;
 }
 
-.input-wrapper input:focus {
-  border-color: var(--cafe-primario);
+.input-group input::placeholder {
+  color: #a0948d;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--cafe-medio);
   box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
 }
 
-.input-wrapper input::placeholder {
-  color: #b0a79f;
+/* Arreglo para cuando Chrome autocompleta y pone el fondo azul/amarillo */
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover, 
+.input-group input:-webkit-autofill:focus, 
+.input-group input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: var(--cafe-oscuro) !important;
 }
 
-/* ===== BOTÓN PRINCIPAL ===== */
-.login-button {
+/* ==================== BOTÓN DE ENVÍO ==================== */
+.submit-btn {
+  margin-top: 10px;
   padding: 16px;
-  background: linear-gradient(135deg, var(--cafe-primario) 0%, var(--cafe-oscuro) 100%);
-  color: var(--blanco);
   border: none;
   border-radius: 12px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(111, 78, 55, 0.3);
   font-family: inherit;
-  letter-spacing: 0.5px;
+  color: var(--blanco);
 }
 
-.login-button:hover:not(:disabled) {
+/* Botón cambia según el tema */
+.theme-estudiante .submit-btn {
+  background: var(--cafe-primario);
+}
+.theme-estudiante .submit-btn:hover:not(:disabled) {
+  background: var(--cafe-oscuro);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(111, 78, 55, 0.4);
+  box-shadow: 0 8px 20px rgba(111, 78, 55, 0.3);
 }
 
-.login-button:active:not(:disabled) {
-  transform: translateY(0);
+.theme-instructor .submit-btn {
+  background: var(--cafe-oscuro);
+}
+.theme-instructor .submit-btn:hover:not(:disabled) {
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(62, 39, 35, 0.4);
 }
 
-.login-button:disabled {
+.submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-/* ===== FOOTER ===== */
-.login-footer {
+/* ==================== FOOTER ==================== */
+.form-footer {
   text-align: center;
   margin-top: 30px;
-  padding-top: 25px;
-  border-top: 1px solid var(--cafe-claro);
-}
-
-.login-footer p {
-  color: var(--cafe-medio);
   font-size: 14px;
-  margin: 0;
+  color: var(--cafe-medio);
 }
 
-.login-link {
+.form-footer a {
   color: var(--cafe-primario);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: color 0.2s;
 }
 
-.login-link:hover {
-  color: var(--dorado);
+.form-footer a:hover {
   text-decoration: underline;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 900px) {
   .login-container {
     flex-direction: column;
   }
-
+  
   .login-branding {
     padding: 40px 20px;
-    min-height: auto;
+    min-height: 250px;
   }
 
-  .login-logo {
-    font-size: 60px;
-  }
-
-  .login-branding-title {
-    font-size: 32px;
-  }
-
-  .login-branding-features {
-    display: none;
-  }
-
+  .branding-title { font-size: 28px; }
+  .branding-features { display: none; }
+  
   .login-form-panel {
-    padding: 40px 25px;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-header h2 {
-    font-size: 26px;
-  }
-
-  .input-wrapper input {
-    padding: 13px 14px 13px 44px;
-    font-size: 14px;
-  }
-
-  .login-button {
-    padding: 14px;
-    font-size: 15px;
+    padding: 30px 20px;
   }
 }

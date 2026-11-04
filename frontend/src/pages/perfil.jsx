@@ -11,7 +11,6 @@ import {
 } from "../services/api";
 import "./perfil.css";
 
-
 function Perfil() {
   const [usuario, setUsuario] = useState(null);
   const [cursos, setCursos] = useState([]);
@@ -20,6 +19,10 @@ function Perfil() {
   const [cargando, setCargando] = useState(true);
   const [agregando, setAgregando] = useState({});
   const [mensajes, setMensajes] = useState({});
+  
+  // ESTADO PARA EL MODAL DEL TEMARIO
+  const [temarioModal, setTemarioModal] = useState(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -139,12 +142,13 @@ function Perfil() {
         </div>
 
         <div className="navbar-right">
-          {esInstructor && (
-            <Link to="/panel-instructor" className="btn-instructor">
-              Instructor
-            </Link>
-          )}
-          <button className="btn-cerrar-sesion" onClick={handleLogout}>
+          <span className="navbar-rol">{usuario.rol}</span>
+
+          <Link to="/editar-perfil" className="navbar-editar">
+            Editar perfil
+          </Link>
+
+          <button className="navbar-logout" onClick={handleLogout}>
             Cerrar sesión
           </button>
         </div>
@@ -180,13 +184,9 @@ function Perfil() {
 
       {/* ===================== CONTENIDO ===================== */}
       <div className="perfil-content">
-      <Link to="/editar-perfil" className="btn-editar-perfil">
-  Editar perfil
-</Link>
         {esInstructor ? (
           /* ========== VISTA INSTRUCTOR ========== */
           <>
-            {/* Métricas */}
             <div className="metricas-grid">
               <div className="metrica-card">
                 <div className="metrica-valor">{cursosInstructor.length}</div>
@@ -207,7 +207,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Mis cursos que dicta */}
             <div className="cursos-seccion">
               <div className="cursos-titulo-row">
                 <h2>Mis cursos (los que dictas)</h2>
@@ -243,13 +242,6 @@ function Perfil() {
                       <p className="curso-desc">
                         {curso.descripcion?.slice(0, 90)}...
                       </p>
-
-                      {curso.horario?.dias?.length > 0 && (
-                        <div className="horario-mini">
-                          📅 {curso.horario.dias.join(", ")} ·{" "}
-                          {curso.horario.hora_inicio} - {curso.horario.hora_fin}
-                        </div>
-                      )}
 
                       <div className="curso-stats">
                         <div>
@@ -291,7 +283,6 @@ function Perfil() {
         ) : (
           /* ========== VISTA ESTUDIANTE ========== */
           <>
-            {/* Info del perfil */}
             <div className="perfil-info-card">
               <div className="perfil-avatar">
                 {(usuario?.nombre || "U")[0].toUpperCase()}
@@ -303,7 +294,6 @@ function Perfil() {
               </div>
             </div>
 
-            {/* Cursos disponibles */}
             <div className="cursos-seccion">
               <div className="cursos-titulo-row">
                 <h2>Cursos disponibles</h2>
@@ -334,24 +324,43 @@ function Perfil() {
                         <span>{curso.cupos_disponibles} cupos</span>
                         <span>Por {curso.instructor}</span>
                       </div>
-                      <div className="curso-footer">
-                        <span className="curso-precio">
-                          ${(curso.precio || 0).toLocaleString("es-CO")}
-                        </span>
+                      
+                      {/* BOTONES DE ACCIÓN */}
+                      <div className="curso-footer" style={{ flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                          <span className="curso-precio">
+                            ${(curso.precio || 0).toLocaleString("es-CO")}
+                          </span>
+                          <button
+                            className="btn-agregar"
+                            onClick={() => handleAgregarAlCarrito(curso._id)}
+                            disabled={agregando[curso._id]}
+                          >
+                            {agregando[curso._id] ? "..." : "Suscribirse"}
+                          </button>
+                        </div>
+                        
+                        {/* BOTÓN DE VER TEMARIO */}
                         <button
-                          className="btn-agregar"
-                          onClick={() => handleAgregarAlCarrito(curso._id)}
-                          disabled={agregando[curso._id]}
+                          onClick={() => setTemarioModal(curso)}
+                          style={{
+                            background: "transparent",
+                            border: "1px solid #3d1f0a",
+                            color: "#3d1f0a",
+                            padding: "8px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                            fontSize: "13px",
+                            width: "100%"
+                          }}
                         >
-                          {agregando[curso._id]
-                            ? "Agregando..."
-                            : "Agregar a suscripción"}
+                          Ver de qué trata la clase
                         </button>
                       </div>
+
                       {mensajes[curso._id] && (
-                        <div
-                          className={`msg-curso ${mensajes[curso._id].tipo}`}
-                        >
+                        <div className={`msg-curso ${mensajes[curso._id].tipo}`}>
                           {mensajes[curso._id].texto}
                         </div>
                       )}
@@ -361,7 +370,6 @@ function Perfil() {
               )}
             </div>
 
-            {/* Acciones rápidas */}
             <div className="acciones-rapidas">
               <h2>Acciones rápidas</h2>
               <div className="acciones-grid">
@@ -388,6 +396,49 @@ function Perfil() {
       <footer className="perfil-footer">
         © 2026 Escuela Café — SENA ADSO
       </footer>
+
+      {/* ===================== MODAL DE TEMARIO PARA EL ESTUDIANTE ===================== */}
+      {temarioModal && (
+        <div className="modal-overlay" onClick={() => setTemarioModal(null)}>
+          <div className="modal-estudiantes" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{temarioModal.titulo}</h2>
+              <button className="modal-close" onClick={() => setTemarioModal(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <h3 style={{ marginBottom: '10px', color: '#3d1f0a' }}>Descripción del curso</h3>
+              <p style={{ marginBottom: '20px', lineHeight: '1.6', color: '#555' }}>
+                {temarioModal.descripcion}
+              </p>
+              
+              <h3 style={{ marginBottom: '10px', color: '#3d1f0a' }}>Temario:</h3>
+              {temarioModal.modulos && temarioModal.modulos.length > 0 ? (
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {temarioModal.modulos.map((mod, index) => (
+                    <li key={index} style={{ background: '#f5f0eb', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #c8860a' }}>
+                      <strong>Módulo {index + 1}:</strong> {mod.titulo}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ color: '#888', fontStyle: 'italic' }}>
+                  El instructor aún no ha agregado los temas de este curso.
+                </p>
+              )}
+
+              <div style={{ marginTop: '25px', textAlign: 'center' }}>
+                <button 
+                  onClick={() => { handleAgregarAlCarrito(temarioModal._id); setTemarioModal(null); }}
+                  style={{ background: '#3d1f0a', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', width: '100%' }}
+                >
+                  Suscribirme a este curso
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

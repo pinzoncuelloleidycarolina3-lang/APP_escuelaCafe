@@ -6,6 +6,8 @@ import {
   estudiantesDelCurso,
   actualizarHorario,
   actualizarNota,
+  agregarModulo,
+  editarCurso,
   logout,
 } from "../services/api";
 import "./PanelInstructor.css";
@@ -17,7 +19,7 @@ function PanelInstructor() {
   const [estudiantes, setEstudiantes] = useState(null);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [vista, setVista] = useState("cursos"); // "cursos" | "estudiantes" | "horario"
+  const [vista, setVista] = useState("cursos");
   const [editandoNota, setEditandoNota] = useState(null);
   const [notaForm, setNotaForm] = useState({
     nota: "",
@@ -32,8 +34,10 @@ function PanelInstructor() {
     lugar: "",
   });
   const [mensaje, setMensaje] = useState(null);
-  const navigate = useNavigate();
+  const [cursoTemario, setCursoTemario] = useState(null);
+  const [nuevoModulo, setNuevoModulo] = useState("");
 
+  const navigate = useNavigate();
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
   useEffect(() => {
@@ -115,6 +119,41 @@ function PanelInstructor() {
     }
   };
 
+  const handleCrearModulo = async (e) => {
+    e.preventDefault();
+    if (!nuevoModulo.trim()) return;
+    try {
+      await agregarModulo(cursoTemario._id, { titulo: nuevoModulo });
+      setMensaje({ tipo: "exito", texto: "Módulo agregado al temario" });
+      setNuevoModulo("");
+      setCursoTemario(null);
+      
+      const dataInstructor = await misCursosComoInstructor();
+      setCursos(dataInstructor.cursos || []);
+      
+      setTimeout(() => setMensaje(null), 3000);
+    } catch (error) {
+      alert(error.response?.data?.message || "Error al agregar módulo");
+    }
+  };
+
+  const handlePublicarCurso = async (cursoId) => {
+    try {
+      await editarCurso(cursoId, { estado: "Publicado" });
+      setMensaje({ tipo: "exito", texto: "Curso publicado. ¡Ya es visible para los estudiantes!" });
+      
+      setCursos((prev) =>
+        prev.map((c) =>
+          c._id === cursoId ? { ...c, estado: "Publicado" } : c
+        )
+      );
+      
+      setTimeout(() => setMensaje(null), 3000);
+    } catch (error) {
+      alert("Error al publicar el curso");
+    }
+  };
+
   const abrirEditarNota = (est) => {
     setEditandoNota(est._id);
     setNotaForm({
@@ -177,13 +216,14 @@ function PanelInstructor() {
 
   return (
     <div className="perfil-wrapper">
-      {/* NAVBAR */}
+      {/* ===================== NAVBAR ===================== */}
       <nav className="perfil-navbar">
         <div className="navbar-logo">
           <span className="logo-icon">EC</span>
           <span className="logo-text">Escuela Café</span>
           <Chatbot />
         </div>
+
         <div className="navbar-links">
           <Link to="/perfil">Inicio</Link>
           <Link to="/crear-curso">Crear curso</Link>
@@ -191,18 +231,25 @@ function PanelInstructor() {
             Panel instructor
           </Link>
         </div>
+
         <div className="navbar-right">
           <span className="navbar-rol">{usuario?.rol}</span>
-          <button className="btn-cerrar-sesion" onClick={handleLogout}>
+          <Link to="/editar-perfil" className="navbar-editar">
+            Editar perfil
+          </Link>
+          <button className="navbar-logout" onClick={handleLogout}>
             Cerrar sesión
           </button>
         </div>
       </nav>
 
-      {/* HERO */}
-      <div className="perfil-hero">
-        <h1>Panel del instructor, {usuario?.nombre?.split(" ")[0]}</h1>
-        <p>Gestiona tus cursos, revisa tus estudiantes y define horarios.</p>
+      {/* ===================== HERO MEJORADO ===================== */}
+      <div className="perfil-hero hero-instructor">
+        <div className="hero-content">
+          <div className="hero-icon">👨‍🏫</div>
+          <h1>¡Hola de nuevo, <span>{usuario?.nombre?.split(" ")[0]}</span>!</h1>
+          <p>Aquí tienes el resumen de tu impacto. Gestiona tus cursos, revisa a tus estudiantes y sigue creciendo.</p>
+        </div>
       </div>
 
       <div className="perfil-content">
@@ -212,7 +259,7 @@ function PanelInstructor() {
           </div>
         )}
 
-        {/* MÉTRICAS */}
+        {/* ===================== MÉTRICAS ===================== */}
         <div className="metricas-grid">
           <div className="metrica-card">
             <div className="metrica-valor">{cursos.length}</div>
@@ -233,7 +280,7 @@ function PanelInstructor() {
           </div>
         </div>
 
-        {/* TABS */}
+        {/* ===================== TABS ===================== */}
         <div className="tabs-instructor">
           <button
             className={vista === "cursos" ? "tab activo" : "tab"}
@@ -250,7 +297,7 @@ function PanelInstructor() {
           )}
         </div>
 
-        {/* ========== VISTA CURSOS ========== */}
+        {/* ===================== VISTA CURSOS ===================== */}
         {vista === "cursos" && (
           <div className="cursos-seccion">
             <div className="cursos-titulo-row">
@@ -279,7 +326,7 @@ function PanelInstructor() {
                       </span>
                     </div>
 
-                    <h3>{curso.titulo}</h3>
+                    <h3 className="curso-titulo">{curso.titulo}</h3>
                     <p className="curso-desc">
                       {curso.descripcion?.slice(0, 90)}...
                     </p>
@@ -311,18 +358,37 @@ function PanelInstructor() {
                       </div>
                     </div>
 
-                    <div className="botones-curso">
-                      <button
-                        className="btn-ver-estudiantes"
-                        onClick={() => handleVerEstudiantes(curso)}
-                      >
-                        Ver estudiantes
-                      </button>
+                    <div className="botones-curso" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {curso.estado === "Borrador" && (
+                        <button
+                          onClick={() => handlePublicarCurso(curso._id)}
+                          style={{ width: '100%', background: '#2e7d32', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                          Publicar Curso (Hacer visible)
+                        </button>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          className="btn-ver-estudiantes"
+                          onClick={() => handleVerEstudiantes(curso)}
+                        >
+                          Ver estudiantes
+                        </button>
+                        <button
+                          className="btn-horario"
+                          onClick={() => handleEditarHorario(curso)}
+                        >
+                          Horario
+                        </button>
+                      </div>
+                      
                       <button
                         className="btn-horario"
-                        onClick={() => handleEditarHorario(curso)}
+                        onClick={() => setCursoTemario(curso)}
+                        style={{ width: '100%', borderColor: '#c8860a', color: '#c8860a' }}
                       >
-                        Horario
+                        + Agregar Temario (Módulos)
                       </button>
                     </div>
                   </div>
@@ -332,7 +398,7 @@ function PanelInstructor() {
           </div>
         )}
 
-        {/* ========== VISTA ESTUDIANTES + NOTAS ========== */}
+        {/* ===================== VISTA ESTUDIANTES + NOTAS ===================== */}
         {vista === "estudiantes" && cursoSeleccionado && (
           <div className="estudiantes-seccion">
             <button
@@ -461,7 +527,7 @@ function PanelInstructor() {
           </div>
         )}
 
-        {/* ========== VISTA HORARIO ========== */}
+        {/* ===================== VISTA HORARIO ===================== */}
         {vista === "horario" && cursoSeleccionado && (
           <div className="estudiantes-seccion">
             <button className="btn-volver" onClick={() => setVista("cursos")}>
@@ -561,6 +627,40 @@ function PanelInstructor() {
           </div>
         )}
       </div>
+
+      {/* ===================== MODAL PARA AGREGAR MÓDULO ===================== */}
+      {cursoTemario && (
+        <div className="modal-overlay" onClick={() => setCursoTemario(null)}>
+          <div className="modal-estudiantes" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h2>Agregar Temario</h2>
+              <button className="modal-close" onClick={() => setCursoTemario(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ marginBottom: '15px', color: '#666' }}>
+                Curso: <strong>{cursoTemario.titulo}</strong>
+              </p>
+              <form onSubmit={handleCrearModulo}>
+                <div className="form-group">
+                  <label>Nombre del Módulo (Ej: Introducción al Marketing)</label>
+                  <input
+                    type="text"
+                    value={nuevoModulo}
+                    onChange={(e) => setNuevoModulo(e.target.value)}
+                    placeholder="Escribe el tema..."
+                    required
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '8px' }}
+                  />
+                </div>
+                <button type="submit" className="btn-guardar-horario" style={{ marginTop: '20px', width: '100%' }}>
+                  Guardar Módulo
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }

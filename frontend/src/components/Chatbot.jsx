@@ -1,140 +1,211 @@
 import { useState, useRef, useEffect } from "react";
+import {
+  misCursosComoInstructor,
+  misInscripciones,
+} from "../services/api";
 import "./Chatbot.css";
 
-// Respuestas para ESTUDIANTE
-const RESPUESTAS_ESTUDIANTE = [
-  {
-    keywords: ["inscribir", "inscripción", "suscribir", "agregar", "comprar", "curso"],
-    respuesta:
-      "Para inscribirte a un curso:\n1. Ve a Inicio\n2. Elige el curso que te guste\n3. Haz clic en «Agregar a suscripción»\n4. Ve a Suscripción y confirma el pago.",
-  },
-  {
-    keywords: ["horario", "hora", "días", "cuando", "clase"],
-    respuesta:
-      "Puedes ver el horario de tus cursos en «Mis cursos». Allí aparece el día, la hora y si es virtual o presencial.",
-  },
-  {
-    keywords: ["nota", "calificación", "progreso", "calific"],
-    respuesta:
-      "Tus notas y progreso los ves en «Mis cursos». El instructor es quien las actualiza.",
-  },
-  {
-    keywords: ["instructor", "profesor", "contacto", "hablar"],
-    respuesta:
-      "Puedes ver el nombre del instructor en cada curso. Pronto habrá un canal directo de contacto.",
-  },
-  {
-    keywords: ["pago", "precio", "costo", "pagar", "dinero"],
-    respuesta:
-      "Los precios aparecen en el catálogo. Al agregar a suscripción y confirmar, se registra tu inscripción.",
-  },
-  {
-    keywords: ["hola", "buenas", "hey", "saludos"],
-    respuesta: "¡Hola! 👋 Soy el asistente de Escuela Café. ¿En qué te puedo ayudar?",
-  },
-  {
-    keywords: ["gracias", "ok", "listo", "perfecto"],
-    respuesta: "¡Con gusto! Si tienes otra duda, aquí estoy. 😊",
-  },
-  {
-    keywords: ["ayuda", "duda", "pregunta", "cómo", "que"],
-    respuesta:
-      "Puedo ayudarte con:\n• Cómo inscribirte a un curso\n• Ver tu horario\n• Consultar tus notas\n• Información de pagos\n\n¿Qué necesitas?",
-  },
-];
+// ==================== LÓGICA DE RESPUESTAS ====================
+function getRespuesta(mensaje, contexto) {
+  const texto = mensaje.toLowerCase().trim();
+  const {
+    esInstructor,
+    nombre,
+    totalCursos,
+    totalInscritos,
+    totalInscripciones,
+  } = contexto;
 
-// Respuestas para INSTRUCTOR (problemas técnicos)
-const RESPUESTAS_INSTRUCTOR = [
-  {
-    keywords: ["crear", "nuevo curso", "publicar curso"],
-    respuesta:
-      "Para crear un curso:\n1. Ve a «Crear curso»\n2. Completa título, descripción, nivel y precio\n3. Guarda\n4. Luego ve al Panel y cambia el estado a «Publicado» para que aparezca en el catálogo.",
-  },
-  {
-    keywords: ["horario", "días", "hora", "clase"],
-    respuesta:
-      "Para definir el horario de un curso:\n1. Entra al Panel instructor\n2. En la tarjeta del curso haz clic en «Horario»\n3. Selecciona los días, hora inicio/fin, modalidad y lugar\n4. Guarda.",
-  },
-  {
-    keywords: ["nota", "calificar", "progreso", "estudiante"],
-    respuesta:
-      "Para poner notas:\n1. En el Panel instructor haz clic en «Ver estudiantes»\n2. En la tabla busca al estudiante\n3. Haz clic en «Editar nota»\n4. Ingresa la nota (0 a 5), el progreso (%) y observaciones\n5. Guarda.",
-  },
-  {
-    keywords: ["publicar", "borrador", "estado", "visible"],
-    respuesta:
-      "Los cursos se crean en estado «Borrador». Para que los estudiantes los vean, debes editar el curso y cambiar el estado a «Publicado».",
-  },
-  {
-    keywords: ["inscritos", "estudiantes", "quién", "lista"],
-    respuesta:
-      "En el Panel instructor, cada curso muestra cuántos inscritos tiene. Haz clic en «Ver estudiantes» para ver la lista completa con email, progreso y nota.",
-  },
-  {
-    keywords: ["error", "no funciona", "problema", "falla", "bug"],
-    respuesta:
-      "Si algo no funciona:\n1. Recarga la página con Ctrl + Shift + R\n2. Verifica que el backend esté corriendo (npm run dev)\n3. Revisa la consola del navegador (F12)\n4. Confirma que el token no haya expirado (vuelve a iniciar sesión).",
-  },
-  {
-    keywords: ["eliminar", "borrar", "archivar"],
-    respuesta:
-      "Actualmente puedes archivar un curso desde el backend. Pronto agregaremos el botón de eliminar/archivar directamente en el Panel.",
-  },
-  {
-    keywords: ["hola", "buenas", "hey", "saludos"],
-    respuesta:
-      "¡Hola instructor! 👋 Soy tu asistente técnico de Escuela Café. ¿Qué necesitas resolver?",
-  },
-  {
-    keywords: ["gracias", "ok", "listo", "perfecto"],
-    respuesta: "¡Listo! Si tienes otro problema técnico, avísame. 🛠️",
-  },
-  {
-    keywords: ["ayuda", "duda", "pregunta", "cómo", "que"],
-    respuesta:
-      "Puedo ayudarte con:\n• Crear y publicar cursos\n• Definir horarios\n• Poner notas a estudiantes\n• Ver lista de inscritos\n• Solucionar errores técnicos\n\n¿Qué necesitas?",
-  },
-];
+  // === SALUDOS ===
+  if (/^(hola|buenas|hey|hi|qué tal|que tal|saludos)/.test(texto)) {
+    const saludos = [
+      `¡Hola, ${nombre}! ¿En qué te puedo ayudar hoy?`,
+      `¡Buenas, ${nombre}! ¿Qué necesitas?`,
+      `¡Hola de nuevo, ${nombre}! Cuéntame en qué te ayudo.`,
+    ];
+    return saludos[Math.floor(Math.random() * saludos.length)];
+  }
 
-function buscarRespuesta(mensaje, esInstructor) {
-  const texto = mensaje.toLowerCase();
-  const lista = esInstructor ? RESPUESTAS_INSTRUCTOR : RESPUESTAS_ESTUDIANTE;
+  // === AGRADECIMIENTOS ===
+  if (/(gracias|graciaz|thanks|te agradezco)/.test(texto)) {
+    const agradecimientos = [
+      `¡Con gusto, ${nombre}! ¿Necesitas algo más?`,
+      `¡Un placer ayudarte, ${nombre}!`,
+      "¡De nada! Aquí estoy si necesitas algo más.",
+    ];
+    return agradecimientos[Math.floor(Math.random() * agradecimientos.length)];
+  }
 
-  for (const item of lista) {
-    if (item.keywords.some((kw) => texto.includes(kw))) {
-      return item.respuesta;
+  // === DESPEDIDAS ===
+  if (/(adiós|adios|chao|bye|hasta luego|nos vemos)/.test(texto)) {
+    return `¡Hasta luego, ${nombre}! Que tengas un excelente día.`;
+  }
+
+  // === FECHA Y HORA ===
+  if (/(qué hora|que hora|hora es|fecha|día es|que dia)/.test(texto)) {
+    const ahora = new Date();
+    const fecha = ahora.toLocaleDateString("es-CO", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const hora = ahora.toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `Hoy es ${fecha} y son las ${hora}.`;
+  }
+
+  // === ¿QUIÉN SOY? ===
+  if (/(quién soy|quien soy|mi nombre|mi rol|mi correo)/.test(texto)) {
+    return `Eres ${nombre}${esInstructor ? " (Instructor)" : ""}. ¿Necesitas cambiar tus datos? Ve a "Editar perfil".`;
+  }
+
+  // === ESTADÍSTICAS DEL INSTRUCTOR ===
+  if (
+    esInstructor &&
+    /(cuántos cursos|cuantos cursos|mis cursos|total cursos)/.test(texto)
+  ) {
+    return `Actualmente tienes ${totalCursos} curso(s) creado(s). Puedes verlos en el "Panel instructor".`;
+  }
+
+  if (
+    esInstructor &&
+    /(cuántos estudiantes|cuantos estudiantes|inscritos|total estudiantes)/.test(
+      texto
+    )
+  ) {
+    return `Tienes ${totalInscritos} estudiante(s) inscrito(s) en total en todos tus cursos.`;
+  }
+
+  // === ESTADÍSTICAS DEL ESTUDIANTE ===
+  if (
+    !esInstructor &&
+    /(cuántos cursos|cuantos cursos|mis cursos|total cursos|inscripciones)/.test(
+      texto
+    )
+  ) {
+    return `Estás inscrito en ${totalInscripciones} curso(s). Puedes verlos en la sección "Mis cursos".`;
+  }
+
+  // === AYUDA GENERAL ===
+  if (/(ayuda|help|qué puedes hacer|que puedes hacer|qué haces)/.test(texto)) {
+    if (esInstructor) {
+      return `Puedo ayudarte con:\n• Crear y publicar cursos\n• Definir horarios\n• Ver estudiantes inscritos\n• Poner notas y progreso\n• Editar tu perfil\n• Problemas técnicos\n\n¿Qué necesitas?`;
+    }
+    return `Puedo ayudarte con:\n• Inscribirte a cursos\n• Ver tus horarios\n• Consultar tus notas\n• Gestionar tu suscripción\n• Editar tu perfil\n\n¿Qué necesitas?`;
+  }
+
+  // === PREGUNTAS FRECUENTES INSTRUCTOR ===
+  if (esInstructor) {
+    if (/(crear.*curso|nuevo curso|publicar)/.test(texto)) {
+      return `Para crear un curso:\n1. Ve a "Crear curso" (arriba en la navbar)\n2. Completa título, descripción, nivel y precio\n3. Guarda\n4. Luego edítalo y cambia el estado a "Publicado" para que aparezca en el catálogo.`;
+    }
+    if (/(horario|días|dias|hora clase)/.test(texto)) {
+      return `Para definir un horario:\n1. Entra al "Panel instructor"\n2. En cada curso haz clic en "Horario"\n3. Selecciona días, hora inicio/fin, modalidad y lugar\n4. Guarda los cambios.`;
+    }
+    if (/(nota|calificar|progreso)/.test(texto)) {
+      return `Para poner notas:\n1. En el Panel instructor haz clic en "Ver estudiantes"\n2. Busca al estudiante\n3. Haz clic en "Editar nota"\n4. Ingresa la nota (0-5), el progreso (%) y observaciones\n5. Guarda.`;
+    }
+    if (/(error|no funciona|problema|falla|bug)/.test(texto)) {
+      return `Si algo no funciona:\n1. Recarga con Ctrl + Shift + R\n2. Verifica que el backend esté corriendo\n3. Revisa la consola del navegador (F12)\n4. Si el token expiró, vuelve a iniciar sesión.`;
     }
   }
 
-  if (esInstructor) {
-    return "No encontré una respuesta exacta. Puedes preguntarme sobre:\n• Crear/publicar cursos\n• Horarios\n• Notas y estudiantes\n• Errores técnicos\n\n¿Intentas de nuevo?";
+  // === PREGUNTAS FRECUENTES ESTUDIANTE ===
+  if (!esInstructor) {
+    if (/(inscribir|suscripción|suscribir|comprar|agregar)/.test(texto)) {
+      return `Para inscribirte a un curso:\n1. Ve a "Inicio"\n2. Elige el curso que te guste\n3. Haz clic en "Agregar a suscripción"\n4. Ve a "Suscripción" y haz clic en "Suscribirme ahora".`;
+    }
+    if (/(horario|días|dias|hora clase)/.test(texto)) {
+      return `Puedes ver el horario de tus cursos en "Mis cursos". Ahí aparece el día, hora y modalidad.`;
+    }
+    if (/(nota|calificación|progreso)/.test(texto)) {
+      return `Tus notas y progreso los ves en "Mis cursos". El instructor es quien las actualiza.`;
+    }
+    if (/(pago|precio|costo|pagar)/.test(texto)) {
+      return `Los precios aparecen en el catálogo. Al agregar a suscripción y confirmar, se registra tu inscripción.`;
+    }
   }
 
-  return "No estoy seguro de entender. Puedes preguntarme sobre:\n• Inscripciones\n• Horarios\n• Notas\n• Pagos\n\n¿Intentas de nuevo?";
+  // === RESPUESTA POR DEFECTO ===
+  if (esInstructor) {
+    return `No estoy seguro de entender, ${nombre}. Puedes preguntarme sobre:\n• Crear cursos\n• Horarios\n• Notas\n• Estudiantes inscritos\n• Problemas técnicos\n\n¿Puedes reformular tu pregunta?`;
+  }
+  return `No estoy seguro de entender, ${nombre}. Puedes preguntarme sobre:\n• Inscripciones\n• Horarios\n• Notas\n• Pagos\n• Editar perfil\n\n¿Puedes reformular tu pregunta?`;
 }
 
+// ==================== COMPONENTE ====================
 function Chatbot() {
   const [abierto, setAbierto] = useState(false);
   const [mensajes, setMensajes] = useState([]);
   const [input, setInput] = useState("");
+  const [contexto, setContexto] = useState({
+    esInstructor: false,
+    nombre: "amig@",
+    totalCursos: 0,
+    totalInscritos: 0,
+    totalInscripciones: 0,
+  });
   const chatBodyRef = useRef(null);
 
-  // Detectar rol del usuario
-  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-  const esInstructor =
-    usuario?.rol === "Instructor" || usuario?.rol === "Admin";
-
+  // Cargar contexto del usuario
   useEffect(() => {
-    // Mensaje inicial según el rol
-    setMensajes([
-      {
-        tipo: "bot",
-        texto: esInstructor
-          ? "¡Hola instructor! 👋 Soy tu asistente técnico. ¿En qué te puedo ayudar?"
-          : "¡Hola! 👋 Soy el asistente de Escuela Café. ¿En qué te puedo ayudar hoy?",
-      },
-    ]);
-  }, [esInstructor]);
+    const cargarContexto = async () => {
+      try {
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+        const esInstructor =
+          usuario?.rol === "Instructor" || usuario?.rol === "Admin";
+        const nombre = usuario?.nombre?.split(" ")[0] || "amig@";
+
+        let totalCursos = 0;
+        let totalInscritos = 0;
+        let totalInscripciones = 0;
+
+        if (esInstructor) {
+          try {
+            const data = await misCursosComoInstructor();
+            totalCursos = data.total_cursos || 0;
+            totalInscritos = (data.cursos || []).reduce(
+              (acc, c) => acc + (c.total_inscritos || 0),
+              0
+            );
+          } catch (e) {
+            // Silencioso
+          }
+        } else {
+          try {
+            const data = await misInscripciones();
+            totalInscripciones = data.total || 0;
+          } catch (e) {
+            // Silencioso
+          }
+        }
+
+        setContexto({
+          esInstructor,
+          nombre,
+          totalCursos,
+          totalInscritos,
+          totalInscripciones,
+        });
+
+        setMensajes([
+          {
+            tipo: "bot",
+            texto: esInstructor
+              ? `¡Hola, ${nombre}! Soy tu asistente técnico. Puedo ayudarte con cursos, horarios, notas o problemas. ¿Qué necesitas?`
+              : `¡Hola, ${nombre}! Soy el asistente de Escuela Café. Puedo ayudarte con inscripciones, horarios, notas y más. ¿En qué te ayudo?`,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error cargando contexto del chatbot:", error);
+      }
+    };
+
+    cargarContexto();
+  }, []);
 
   useEffect(() => {
     if (chatBodyRef.current) {
@@ -142,33 +213,36 @@ function Chatbot() {
     }
   }, [mensajes, abierto]);
 
-  const enviarMensaje = () => {
-    const texto = input.trim();
+  const enviarMensaje = (textoManual) => {
+    const texto = (textoManual || input).trim();
     if (!texto) return;
 
     setMensajes((prev) => [...prev, { tipo: "user", texto }]);
     setInput("");
 
     setTimeout(() => {
-      const respuesta = buscarRespuesta(texto, esInstructor);
+      const respuesta = getRespuesta(texto, contexto);
       setMensajes((prev) => [...prev, { tipo: "bot", texto: respuesta }]);
-    }, 600);
+    }, 500);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") enviarMensaje();
   };
 
-  const preguntasRapidas = esInstructor
+  // Preguntas rápidas según rol
+  const preguntasRapidas = contexto.esInstructor
     ? [
+        "¿Cuántos estudiantes tengo?",
         "¿Cómo creo un curso?",
         "¿Cómo pongo una nota?",
-        "¿Cómo defino el horario?",
+        "¿Qué hora es?",
       ]
     : [
         "¿Cómo me inscribo?",
+        "¿Cuántos cursos tengo?",
         "¿Dónde veo mi horario?",
-        "¿Cómo veo mis notas?",
+        "¿Qué hora es?",
       ];
 
   return (
@@ -202,7 +276,7 @@ function Chatbot() {
               <div className="chatbot-avatar">EC</div>
               <div>
                 <h4>
-                  {esInstructor
+                  {contexto.esInstructor
                     ? "Asistente Técnico"
                     : "Asistente Escuela Café"}
                 </h4>
@@ -231,24 +305,7 @@ function Chatbot() {
           {mensajes.length <= 2 && (
             <div className="chatbot-rapidas">
               {preguntasRapidas.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => {
-                    setMensajes((prev) => [
-                      ...prev,
-                      { tipo: "user", texto: p },
-                    ]);
-                    setTimeout(() => {
-                      setMensajes((prev) => [
-                        ...prev,
-                        {
-                          tipo: "bot",
-                          texto: buscarRespuesta(p, esInstructor),
-                        },
-                      ]);
-                    }, 600);
-                  }}
-                >
+                <button key={p} onClick={() => enviarMensaje(p)}>
                   {p}
                 </button>
               ))}
@@ -263,7 +320,7 @@ function Chatbot() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <button onClick={enviarMensaje} aria-label="Enviar">
+            <button onClick={() => enviarMensaje()} aria-label="Enviar">
               <svg
                 width="18"
                 height="18"

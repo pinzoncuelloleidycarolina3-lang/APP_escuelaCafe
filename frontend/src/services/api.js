@@ -28,6 +28,11 @@ export const perfil = async () => {
   return data;
 };
 
+export const actualizarPerfil = async (datos) => {
+  const { data } = await api.put("/auth/perfil", datos);
+  return data;
+};
+
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
@@ -98,6 +103,17 @@ export const misInscripciones = async () => {
 export const quitarDelCarrito = async (itemId) => {
   const { data } = await api.delete(`/carrito/${itemId}`);
   return data;
+};
+
+// Agregar módulo a un curso
+export const agregarModulo = async (cursoId, data) => {
+  const { data: res } = await api.post(`/cursos/${cursoId}/modulos`, data);
+  return res;
+};
+
+export const editarCurso = async (id, data) => {
+  const { data: res } = await api.put(`/cursos/${id}`, data);
+  return res;
 };
 
 

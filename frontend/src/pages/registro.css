@@ -346,4 +346,32 @@
     padding: 14px;
     font-size: 15px;
   }
+}/* ===== SELECTOR DE ROL ===== */
+.rol-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 25px;
+  background: var(--crema);
+  padding: 6px;
+  border-radius: 14px;
+}
+
+.rol-btn {
+  padding: 12px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cafe-medio);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.rol-btn.active {
+  background: var(--blanco);
+  color: var(--cafe-oscuro);
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.08);
 }

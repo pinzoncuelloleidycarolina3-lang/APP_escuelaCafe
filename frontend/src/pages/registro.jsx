@@ -4,6 +4,7 @@ import { registro } from "../services/api";
 import "./Registro.css";
 
 function Registro() {
+  const [rolSeleccionado, setRolSeleccionado] = useState("Estudiante");
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,8 +29,9 @@ function Registro() {
 
     setCargando(true);
     try {
-      await registro({ nombre, email, password });
-      alert("Usuario registrado correctamente. Ahora inicia sesión.");
+      // Mandamos el rol al backend
+      await registro({ nombre, email, password, rol: rolSeleccionado });
+      alert(`Cuenta de ${rolSeleccionado} creada exitosamente. Ahora inicia sesión.`);
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Error al registrarse");
@@ -44,33 +46,38 @@ function Registro() {
       <div className="registro-branding">
         <div className="registro-branding-content">
           <div className="registro-logo">EC</div>
-          <h1 className="registro-branding-title">Escuela Café</h1>
+          <h1 className="registro-branding-title">Únete a Escuela Café</h1>
           <p className="registro-branding-subtitle">
-            Comienza tu viaje emprendedor
+            Crea tu cuenta y empieza a aprender o enseñar.
           </p>
-          <div className="registro-branding-features">
-            <div className="feature-item">
-              <span className="feature-num">01</span>
-              <span>Cursos de emprendimiento</span>
-            </div>
-            <div className="feature-item">
-              <span className="feature-num">02</span>
-              <span>Diplomas al finalizar</span>
-            </div>
-            <div className="feature-item">
-              <span className="feature-num">03</span>
-              <span>Horarios y actividades</span>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Panel derecho - Formulario */}
       <div className="registro-form-panel">
         <div className="registro-form-wrapper">
+          
           <div className="registro-header">
-            <h2>Crea tu cuenta</h2>
-            <p>Completa los datos para empezar</p>
+            <h2>Crear cuenta</h2>
+            <p>Selecciona tu perfil y completa tus datos</p>
+          </div>
+
+          {/* Selector de Rol */}
+          <div className="rol-selector">
+            <button
+              type="button"
+              className={`rol-btn ${rolSeleccionado === "Estudiante" ? "activo" : ""}`}
+              onClick={() => setRolSeleccionado("Estudiante")}
+            >
+              Estudiante
+            </button>
+            <button
+              type="button"
+              className={`rol-btn ${rolSeleccionado === "Instructor" ? "activo" : ""}`}
+              onClick={() => setRolSeleccionado("Instructor")}
+            >
+              Instructor
+            </button>
           </div>
 
           {error && (
@@ -84,15 +91,13 @@ function Registro() {
             <div className="form-group">
               <label htmlFor="nombre">Nombre completo</label>
               <div className="input-wrapper">
-                <span className="input-icon">N</span>
                 <input
                   id="nombre"
                   type="text"
-                  placeholder="Tu nombre completo"
+                  placeholder="Tu nombre"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
-                  autoComplete="name"
                 />
               </div>
             </div>
@@ -100,7 +105,6 @@ function Registro() {
             <div className="form-group">
               <label htmlFor="email">Correo electrónico</label>
               <div className="input-wrapper">
-                <span className="input-icon">@</span>
                 <input
                   id="email"
                   type="email"
@@ -108,7 +112,6 @@ function Registro() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  autoComplete="email"
                 />
               </div>
             </div>
@@ -116,7 +119,6 @@ function Registro() {
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
               <div className="input-wrapper">
-                <span className="input-icon">*</span>
                 <input
                   id="password"
                   type="password"
@@ -125,7 +127,6 @@ function Registro() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  autoComplete="new-password"
                 />
               </div>
             </div>
@@ -133,7 +134,6 @@ function Registro() {
             <div className="form-group">
               <label htmlFor="confirmar">Confirmar contraseña</label>
               <div className="input-wrapper">
-                <span className="input-icon">*</span>
                 <input
                   id="confirmar"
                   type="password"
@@ -141,17 +141,12 @@ function Registro() {
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
                   required
-                  autoComplete="new-password"
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="registro-button"
-              disabled={cargando}
-            >
-              {cargando ? "Creando cuenta..." : "Registrarme"}
+            <button type="submit" className="registro-button" disabled={cargando}>
+              {cargando ? "Creando cuenta..." : `Registrarme como ${rolSeleccionado}`}
             </button>
           </form>
 
