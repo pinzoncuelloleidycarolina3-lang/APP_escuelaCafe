@@ -1,3 +1,4 @@
+# CI/CD Pipeline para Escuela Café - Corrección de rutas para monorepo
 name: CI Pipeline Escuela Cafe
 
 on:
