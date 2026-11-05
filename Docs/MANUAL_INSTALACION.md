@@ -28,4 +28,27 @@ Para probar el proyecto en tu computadora, sigue estos pasos:
 ### Paso 1: Clonar el repositorio
 ```bash
 git clone https://github.com/pinzoncuelloleidycarolina3-lang/APP_escuelaCafe.git
-cd APP_escuelaCafe
+cd APP_escuelaCafe  
+
+---
+
+## 7. Flujo de Trabajo en Git (Convención de Commits)
+
+Para garantizar la trazabilidad del proyecto y el cumplimiento de los estándares de la industria (y los requerimientos del SENA), el equipo utiliza una convención estricta para los mensajes de commit. Esto permite saber exactamente qué Historia de Usuario (HU) se está desarrollando o corrigiendo.
+
+### Estructura de un Commit
+Todos los commits deben seguir el formato: `<tipo>(<alcance>): <descripción>`
+
+*   **Tipos permitidos:**
+    *   `feat`: Nueva funcionalidad (ej. un endpoint, una vista).
+    *   `fix`: Corrección de un error o bug.
+    *   `docs`: Cambios en la documentación (como este manual).
+    *   `ci`: Cambios en la configuración de integración continua.
+    *   `refactor`: Mejoras en el código que no cambian su comportamiento.
+
+### Comandos básicos para el equipo de desarrollo
+Si eres miembro del equipo y vas a subir cambios, este es el flujo a seguir:
+
+1. **Traer los últimos cambios del repositorio:**
+   ```bash
+   git pull origin main
